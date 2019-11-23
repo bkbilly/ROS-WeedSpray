@@ -19,6 +19,7 @@ from geometry_msgs.msg import PoseStamped
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import CompressedImage
 
+import time
 import numpy as np
 
 import actionlib
@@ -43,6 +44,7 @@ def movebase_client(x, y, z):
         rospy.signal_shutdown("Action server not available!")
     else:
         print('Done moving to: {}, {}, {}'.format(x, y, z))
+        # time.sleep(3)
         return client.get_result()
 
 class image_projection:
@@ -54,22 +56,27 @@ class image_projection:
         self.robot = robot
         self.image_pub = rospy.Publisher(
             "/output/image_raw/compressed",
-            Image)
+            Image,
+            queue_size=5)
 
         self.bridge = CvBridge()
 
-        self.camera_info_sub = rospy.Subscriber('/%s/kinect2_camera/hd/camera_info' % (self.robot),
-                                                CameraInfo, self.camera_info_callback)
+        self.camera_info_sub = rospy.Subscriber(
+            '/%s/kinect2_camera/hd/camera_info' % (self.robot),
+            CameraInfo,
+            self.camera_info_callback)
 
-        rospy.Subscriber("/%s/kinect2_camera/hd/image_color_rect" % (self.robot),
-                         Image, self.image_callback)
+        rospy.Subscriber(
+            "/%s/kinect2_camera/hd/image_color_rect" % (self.robot),
+            Image, self.image_callback)
 
     def image_callback(self, data):
         if not self.camera_model:
             return
 
         if self.inputimage is None:
-            return
+            self.image_pub.publish(data)
+            return 0
 
         # project a point in camera coordinates into the pixel coordinates
         # uv = self.camera_model.project3dToPixel((0, 0, 0.5))
@@ -164,30 +171,29 @@ def main(args):
     img_proj = image_projection('thorvald_001')
     # image_projection('thorvald_002')
 
-    # Go to start
-    movebase_client(2, -3.8, 0)
-    movebase_client(-2, -3.8, 90)
+    img_proj.inputimage = 'simple'
+    movebase_client(6, -3.8, 90)
+    movebase_client(-6, -3.8, 90)
+    img_proj.inputimage = None
+    movebase_client(-6, -2.7, 0)
+    movebase_client(6, -2.7, 0)
+    img_proj.inputimage = None
 
-    movebase_client(-2, -2.8, 90)
-    movebase_client(2, -2.8, 0)
+    img_proj.inputimage = 'realeasy'
+    movebase_client(6, -0.7, 90)
+    movebase_client(-6, -0.7, 90)
+    img_proj.inputimage = None
+    movebase_client(-6, 0.2, 0)
+    movebase_client(6, 0.2, 0)
+    img_proj.inputimage = None
 
-    movebase_client(-2, -1.8, 0)
-    movebase_client(2, -1.8, 90)
-
-    movebase_client(-2, -1.8, 90)
-    movebase_client(2, -1.8, 0)
-
-    # # Show for simple
-    # img_proj.inputimage = 'simple'
-    # movebase_client(2, -3.8, 0)
-    # img_proj.inputimage = None
-    # movebase_client(2, -2.8, 0)
-    # img_proj.inputimage = None
-    # movebase_client(2, -2.8, 0)
-    # img_proj.inputimage = None
-
-    # img_proj.inputimage = 'realhard'
-
+    img_proj.inputimage = 'realhard'
+    movebase_client(6, 2.2, 90)
+    movebase_client(-6, 2.2, 90)
+    img_proj.inputimage = None
+    movebase_client(-6, 3.2, 0)
+    movebase_client(6, 3.2, 0)
+    img_proj.inputimage = None
 
     try:
         rospy.spin()
@@ -198,8 +204,4 @@ def main(args):
 
 if __name__ == '__main__':
     main(sys.argv)
-
-# roslaunch uol_cmp9767m_base thorvald-sim.launch map_server:=true
-# roslaunch uol_cmp9767m_tutorial move_base.launch
-# python ros_readimg.py
 
