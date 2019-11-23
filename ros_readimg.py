@@ -55,7 +55,7 @@ class image_projection:
         self.inputimage = inputimage
         self.robot = robot
         self.image_pub = rospy.Publisher(
-            "/output/image_raw/compressed",
+            "/opencv/image_raw/{}".format(self.robot),
             Image,
             queue_size=5)
 
@@ -90,22 +90,7 @@ class image_projection:
         except CvBridgeError as e:
             print(e)
 
-        # inputimage = 'simple.png'
-        # cv_image = cv2.imread(inputimage)
         hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
-        # gray_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
-
-        # img_simple = cv2.imread('img_simple.png', cv2.IMREAD_GRAYSCALE)
-        # img_realeasy = cv2.imread('img_realeasy.png', cv2.IMREAD_GRAYSCALE)
-        # img_realhard = cv2.imread('img_realhard.png', cv2.IMREAD_GRAYSCALE)
-
-        # orb = cv2.ORB()
-        # kp1, des1 = orb.detectAndCompute(gray_image, None)
-        # kp2, des2 = orb.detectAndCompute(img_realeasy, None)
-        # bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-        # matches = bf.match(des1, des2)
-        # matches = sorted(matches, key=lambda x: x.distance)
-        # print(len(matches))
 
         if self.inputimage == 'simple':
             hsv = cv2.blur(hsv, (100, 100))
@@ -174,7 +159,6 @@ def main(args):
     img_proj.inputimage = 'simple'
     movebase_client(6, -3.8, 90)
     movebase_client(-6, -3.8, 90)
-    img_proj.inputimage = None
     movebase_client(-6, -2.7, 0)
     movebase_client(6, -2.7, 0)
     img_proj.inputimage = None
@@ -182,7 +166,6 @@ def main(args):
     img_proj.inputimage = 'realeasy'
     movebase_client(6, -0.7, 90)
     movebase_client(-6, -0.7, 90)
-    img_proj.inputimage = None
     movebase_client(-6, 0.2, 0)
     movebase_client(6, 0.2, 0)
     img_proj.inputimage = None
@@ -190,7 +173,6 @@ def main(args):
     img_proj.inputimage = 'realhard'
     movebase_client(6, 2.2, 90)
     movebase_client(-6, 2.2, 90)
-    img_proj.inputimage = None
     movebase_client(-6, 3.2, 0)
     movebase_client(6, 3.2, 0)
     img_proj.inputimage = None
@@ -204,4 +186,3 @@ def main(args):
 
 if __name__ == '__main__':
     main(sys.argv)
-
