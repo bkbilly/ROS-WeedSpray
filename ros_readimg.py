@@ -156,19 +156,19 @@ def main(args):
     img_proj = image_projection('thorvald_001')
     # image_projection('thorvald_002')
 
-    img_proj.inputimage = 'simple'
-    movebase_client(6, -3.8, 90)
-    movebase_client(-6, -3.8, 90)
-    movebase_client(-6, -2.7, 0)
-    movebase_client(6, -2.7, 0)
-    img_proj.inputimage = None
+    # img_proj.inputimage = 'simple'
+    # movebase_client(6, -3.8, 90)
+    # movebase_client(-6, -3.8, 90)
+    # movebase_client(-6, -2.7, 0)
+    # movebase_client(6, -2.7, 0)
+    # img_proj.inputimage = None
 
-    img_proj.inputimage = 'realeasy'
-    movebase_client(6, -0.7, 90)
-    movebase_client(-6, -0.7, 90)
-    movebase_client(-6, 0.2, 0)
-    movebase_client(6, 0.2, 0)
-    img_proj.inputimage = None
+    # img_proj.inputimage = 'realeasy'
+    # movebase_client(6, -0.7, 90)
+    # movebase_client(-6, -0.7, 90)
+    # movebase_client(-6, 0.2, 0)
+    # movebase_client(6, 0.2, 0)
+    # img_proj.inputimage = None
 
     img_proj.inputimage = 'realhard'
     movebase_client(6, 2.2, 90)
