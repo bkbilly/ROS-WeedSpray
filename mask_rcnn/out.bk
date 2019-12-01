@@ -1,0 +1,154 @@
+computing@computing-PC-BX17694:~/bkbilly/Mask_RCNN/samples/balloon$ python3 /home/computing/bkbilly/Mask_RCNN/samples/balloon/balloon.py train --dataset=/home/computing/bkbilly/ROS-Assignment/images/plants2/ --weights=coco
+Using TensorFlow backend.
+Weights:  coco
+Dataset:  /home/computing/bkbilly/ROS-Assignment/images/plants2/
+Logs:  /home/computing/bkbilly/Mask_RCNN/logs
+
+Configurations:
+BACKBONE                       resnet101
+BACKBONE_STRIDES               [4, 8, 16, 32, 64]
+BATCH_SIZE                     2
+BBOX_STD_DEV                   [0.1 0.1 0.2 0.2]
+COMPUTE_BACKBONE_SHAPE         None
+DETECTION_MAX_INSTANCES        100
+DETECTION_MIN_CONFIDENCE       0.9
+DETECTION_NMS_THRESHOLD        0.3
+FPN_CLASSIF_FC_LAYERS_SIZE     1024
+GPU_COUNT                      1
+GRADIENT_CLIP_NORM             5.0
+IMAGES_PER_GPU                 2
+IMAGE_MAX_DIM                  1024
+IMAGE_META_SIZE                14
+IMAGE_MIN_DIM                  800
+IMAGE_MIN_SCALE                0
+IMAGE_RESIZE_MODE              square
+IMAGE_SHAPE                    [1024 1024    3]
+LEARNING_MOMENTUM              0.9
+LEARNING_RATE                  0.001
+LOSS_WEIGHTS                   {'rpn_class_loss': 1.0, 'rpn_bbox_loss': 1.0, 'mrcnn_class_loss': 1.0, 'mrcnn_bbox_loss': 1.0, 'mrcnn_mask_loss': 1.0}
+MASK_POOL_SIZE                 14
+MASK_SHAPE                     [28, 28]
+MAX_GT_INSTANCES               100
+MEAN_PIXEL                     [123.7 116.8 103.9]
+MINI_MASK_SHAPE                (56, 56)
+NAME                           balloon
+NUM_CLASSES                    2
+POOL_SIZE                      7
+POST_NMS_ROIS_INFERENCE        1000
+POST_NMS_ROIS_TRAINING         2000
+ROI_POSITIVE_RATIO             0.33
+RPN_ANCHOR_RATIOS              [0.5, 1, 2]
+RPN_ANCHOR_SCALES              (32, 64, 128, 256, 512)
+RPN_ANCHOR_STRIDE              1
+RPN_BBOX_STD_DEV               [0.1 0.1 0.2 0.2]
+RPN_NMS_THRESHOLD              0.7
+RPN_TRAIN_ANCHORS_PER_IMAGE    256
+STEPS_PER_EPOCH                100
+TOP_DOWN_PYRAMID_SIZE          256
+TRAIN_BN                       False
+TRAIN_ROIS_PER_IMAGE           200
+USE_MINI_MASK                  True
+USE_RPN_ROIS                   True
+VALIDATION_STEPS               50
+WEIGHT_DECAY                   0.0001
+
+
+
+Training network heads
+
+Starting at epoch 0. LR=0.001
+
+Checkpoint Path: /home/computing/bkbilly/Mask_RCNN/logs/balloon20191129T2322/mask_rcnn_balloon_{epoch:04d}.h5
+Selecting layers to train
+fpn_c5p5               (Conv2D)
+fpn_c4p4               (Conv2D)
+fpn_c3p3               (Conv2D)
+fpn_c2p2               (Conv2D)
+fpn_p5                 (Conv2D)
+fpn_p2                 (Conv2D)
+fpn_p3                 (Conv2D)
+fpn_p4                 (Conv2D)
+In model:  rpn_model
+    rpn_conv_shared        (Conv2D)
+    rpn_class_raw          (Conv2D)
+    rpn_bbox_pred          (Conv2D)
+mrcnn_mask_conv1       (TimeDistributed)
+mrcnn_mask_bn1         (TimeDistributed)
+mrcnn_mask_conv2       (TimeDistributed)
+mrcnn_mask_bn2         (TimeDistributed)
+mrcnn_class_conv1      (TimeDistributed)
+mrcnn_class_bn1        (TimeDistributed)
+mrcnn_mask_conv3       (TimeDistributed)
+mrcnn_mask_bn3         (TimeDistributed)
+mrcnn_class_conv2      (TimeDistributed)
+mrcnn_class_bn2        (TimeDistributed)
+mrcnn_mask_conv4       (TimeDistributed)
+mrcnn_mask_bn4         (TimeDistributed)
+mrcnn_bbox_fc          (TimeDistributed)
+mrcnn_mask_deconv      (TimeDistributed)
+mrcnn_class_logits     (TimeDistributed)
+mrcnn_mask             (TimeDistributed)
+
+Epoch 1/30
+100/100 [==============================] - 2825s 28s/step - loss: 0.8287 - rpn_class_loss: 0.0747 - rpn_bbox_loss: 0.0799 - mrcnn_class_loss: 0.2017 - mrcnn_bbox_loss: 0.1724 - mrcnn_mask_loss: 0.3001 - val_loss: 1.8757 - val_rpn_class_loss: 0.0705 - val_rpn_bbox_loss: 0.3233 - val_mrcnn_class_loss: 0.5241 - val_mrcnn_bbox_loss: 0.4207 - val_mrcnn_mask_loss: 0.5371
+Epoch 2/30
+100/100 [==============================] - 2732s 27s/step - loss: 0.1965 - rpn_class_loss: 0.0103 - rpn_bbox_loss: 0.0095 - mrcnn_class_loss: 0.0562 - mrcnn_bbox_loss: 0.0149 - mrcnn_mask_loss: 0.1057 - val_loss: 2.1411 - val_rpn_class_loss: 0.0593 - val_rpn_bbox_loss: 0.3363 - val_mrcnn_class_loss: 0.6182 - val_mrcnn_bbox_loss: 0.4468 - val_mrcnn_mask_loss: 0.6804
+Epoch 3/30
+100/100 [==============================] - 2718s 27s/step - loss: 0.1272 - rpn_class_loss: 0.0076 - rpn_bbox_loss: 0.0026 - mrcnn_class_loss: 0.0347 - mrcnn_bbox_loss: 0.0079 - mrcnn_mask_loss: 0.0745 - val_loss: 2.7128 - val_rpn_class_loss: 0.0832 - val_rpn_bbox_loss: 0.3431 - val_mrcnn_class_loss: 1.0964 - val_mrcnn_bbox_loss: 0.4388 - val_mrcnn_mask_loss: 0.7513
+Epoch 4/30
+100/100 [==============================] - 2725s 27s/step - loss: 0.0997 - rpn_class_loss: 0.0049 - rpn_bbox_loss: 0.0011 - mrcnn_class_loss: 0.0270 - mrcnn_bbox_loss: 0.0056 - mrcnn_mask_loss: 0.0612 - val_loss: 2.8066 - val_rpn_class_loss: 0.0848 - val_rpn_bbox_loss: 0.3509 - val_mrcnn_class_loss: 1.0918 - val_mrcnn_bbox_loss: 0.4470 - val_mrcnn_mask_loss: 0.8321
+Epoch 5/30
+100/100 [==============================] - 48124s 481s/step - loss: 0.0775 - rpn_class_loss: 0.0038 - rpn_bbox_loss: 5.5335e-04 - mrcnn_class_loss: 0.0179 - mrcnn_bbox_loss: 0.0027 - mrcnn_mask_loss: 0.0526 - val_loss: 3.1154 - val_rpn_class_loss: 0.1010 - val_rpn_bbox_loss: 0.3564 - val_mrcnn_class_loss: 1.3018 - val_mrcnn_bbox_loss: 0.4653 - val_mrcnn_mask_loss: 0.8910
+Epoch 6/30
+100/100 [==============================] - 2718s 27s/step - loss: 0.0702 - rpn_class_loss: 0.0025 - rpn_bbox_loss: 3.8231e-04 - mrcnn_class_loss: 0.0182 - mrcnn_bbox_loss: 0.0030 - mrcnn_mask_loss: 0.0462 - val_loss: 2.7455 - val_rpn_class_loss: 0.0972 - val_rpn_bbox_loss: 0.3675 - val_mrcnn_class_loss: 0.9204 - val_mrcnn_bbox_loss: 0.4334 - val_mrcnn_mask_loss: 0.9270
+Epoch 7/30
+100/100 [==============================] - 2714s 27s/step - loss: 0.0647 - rpn_class_loss: 0.0028 - rpn_bbox_loss: 3.3642e-04 - mrcnn_class_loss: 0.0161 - mrcnn_bbox_loss: 0.0030 - mrcnn_mask_loss: 0.0425 - val_loss: 3.0957 - val_rpn_class_loss: 0.1207 - val_rpn_bbox_loss: 0.3745 - val_mrcnn_class_loss: 1.1876 - val_mrcnn_bbox_loss: 0.4446 - val_mrcnn_mask_loss: 0.9683
+Epoch 8/30
+100/100 [==============================] - 2724s 27s/step - loss: 0.0573 - rpn_class_loss: 0.0022 - rpn_bbox_loss: 2.2476e-04 - mrcnn_class_loss: 0.0125 - mrcnn_bbox_loss: 0.0023 - mrcnn_mask_loss: 0.0401 - val_loss: 3.3282 - val_rpn_class_loss: 0.1204 - val_rpn_bbox_loss: 0.3784 - val_mrcnn_class_loss: 1.4593 - val_mrcnn_bbox_loss: 0.4172 - val_mrcnn_mask_loss: 0.9529
+Epoch 9/30
+100/100 [==============================] - 2717s 27s/step - loss: 0.0518 - rpn_class_loss: 0.0013 - rpn_bbox_loss: 2.2720e-04 - mrcnn_class_loss: 0.0105 - mrcnn_bbox_loss: 0.0018 - mrcnn_mask_loss: 0.0379 - val_loss: 3.3244 - val_rpn_class_loss: 0.1172 - val_rpn_bbox_loss: 0.3775 - val_mrcnn_class_loss: 1.3671 - val_mrcnn_bbox_loss: 0.4371 - val_mrcnn_mask_loss: 1.0256
+Epoch 10/30
+100/100 [==============================] - 2723s 27s/step - loss: 0.0530 - rpn_class_loss: 0.0020 - rpn_bbox_loss: 2.2116e-04 - mrcnn_class_loss: 0.0133 - mrcnn_bbox_loss: 0.0020 - mrcnn_mask_loss: 0.0355 - val_loss: 3.4036 - val_rpn_class_loss: 0.1298 - val_rpn_bbox_loss: 0.3697 - val_mrcnn_class_loss: 1.3934 - val_mrcnn_bbox_loss: 0.4401 - val_mrcnn_mask_loss: 1.0706
+Epoch 11/30
+100/100 [==============================] - 2724s 27s/step - loss: 0.0496 - rpn_class_loss: 0.0019 - rpn_bbox_loss: 1.9249e-04 - mrcnn_class_loss: 0.0115 - mrcnn_bbox_loss: 0.0016 - mrcnn_mask_loss: 0.0344 - val_loss: 3.8841 - val_rpn_class_loss: 0.1672 - val_rpn_bbox_loss: 0.3765 - val_mrcnn_class_loss: 1.8125 - val_mrcnn_bbox_loss: 0.4491 - val_mrcnn_mask_loss: 1.0788
+Epoch 12/30
+100/100 [==============================] - 2718s 27s/step - loss: 0.0485 - rpn_class_loss: 0.0011 - rpn_bbox_loss: 1.9061e-04 - mrcnn_class_loss: 0.0123 - mrcnn_bbox_loss: 0.0017 - mrcnn_mask_loss: 0.0333 - val_loss: 3.5417 - val_rpn_class_loss: 0.1335 - val_rpn_bbox_loss: 0.3777 - val_mrcnn_class_loss: 1.4939 - val_mrcnn_bbox_loss: 0.4283 - val_mrcnn_mask_loss: 1.1084
+Epoch 13/30
+100/100 [==============================] - 2726s 27s/step - loss: 0.0453 - rpn_class_loss: 0.0014 - rpn_bbox_loss: 1.8458e-04 - mrcnn_class_loss: 0.0108 - mrcnn_bbox_loss: 0.0014 - mrcnn_mask_loss: 0.0314 - val_loss: 3.6108 - val_rpn_class_loss: 0.1489 - val_rpn_bbox_loss: 0.3768 - val_mrcnn_class_loss: 1.5732 - val_mrcnn_bbox_loss: 0.4308 - val_mrcnn_mask_loss: 1.0811
+Epoch 14/30
+100/100 [==============================] - 2719s 27s/step - loss: 0.0433 - rpn_class_loss: 7.2072e-04 - rpn_bbox_loss: 1.8152e-04 - mrcnn_class_loss: 0.0078 - mrcnn_bbox_loss: 0.0019 - mrcnn_mask_loss: 0.0328 - val_loss: 3.7018 - val_rpn_class_loss: 0.1352 - val_rpn_bbox_loss: 0.3722 - val_mrcnn_class_loss: 1.6181 - val_mrcnn_bbox_loss: 0.4320 - val_mrcnn_mask_loss: 1.1443
+Epoch 15/30
+100/100 [==============================] - 2724s 27s/step - loss: 0.0411 - rpn_class_loss: 0.0011 - rpn_bbox_loss: 1.2954e-04 - mrcnn_class_loss: 0.0082 - mrcnn_bbox_loss: 0.0013 - mrcnn_mask_loss: 0.0303 - val_loss: 3.7774 - val_rpn_class_loss: 0.1566 - val_rpn_bbox_loss: 0.3743 - val_mrcnn_class_loss: 1.6538 - val_mrcnn_bbox_loss: 0.4473 - val_mrcnn_mask_loss: 1.1454
+Epoch 16/30
+100/100 [==============================] - 2723s 27s/step - loss: 0.0358 - rpn_class_loss: 6.5548e-04 - rpn_bbox_loss: 7.7266e-05 - mrcnn_class_loss: 0.0054 - mrcnn_bbox_loss: 6.4369e-04 - mrcnn_mask_loss: 0.0291 - val_loss: 3.7750 - val_rpn_class_loss: 0.1528 - val_rpn_bbox_loss: 0.3783 - val_mrcnn_class_loss: 1.6294 - val_mrcnn_bbox_loss: 0.4522 - val_mrcnn_mask_loss: 1.1622
+Epoch 17/30
+100/100 [==============================] - 2730s 27s/step - loss: 0.0418 - rpn_class_loss: 0.0011 - rpn_bbox_loss: 1.6735e-04 - mrcnn_class_loss: 0.0106 - mrcnn_bbox_loss: 0.0013 - mrcnn_mask_loss: 0.0287 - val_loss: 3.8338 - val_rpn_class_loss: 0.1551 - val_rpn_bbox_loss: 0.3790 - val_mrcnn_class_loss: 1.6734 - val_mrcnn_bbox_loss: 0.4432 - val_mrcnn_mask_loss: 1.1831
+Epoch 18/30
+100/100 [==============================] - 2723s 27s/step - loss: 0.0456 - rpn_class_loss: 0.0014 - rpn_bbox_loss: 2.6604e-04 - mrcnn_class_loss: 0.0133 - mrcnn_bbox_loss: 0.0019 - mrcnn_mask_loss: 0.0287 - val_loss: 3.7619 - val_rpn_class_loss: 0.1965 - val_rpn_bbox_loss: 0.3844 - val_mrcnn_class_loss: 1.5973 - val_mrcnn_bbox_loss: 0.4329 - val_mrcnn_mask_loss: 1.1508
+Epoch 19/30
+100/100 [==============================] - 2714s 27s/step - loss: 0.0406 - rpn_class_loss: 8.1352e-04 - rpn_bbox_loss: 1.4925e-04 - mrcnn_class_loss: 0.0104 - mrcnn_bbox_loss: 0.0016 - mrcnn_mask_loss: 0.0277 - val_loss: 3.8730 - val_rpn_class_loss: 0.1672 - val_rpn_bbox_loss: 0.3825 - val_mrcnn_class_loss: 1.7174 - val_mrcnn_bbox_loss: 0.4292 - val_mrcnn_mask_loss: 1.1766
+Epoch 20/30
+100/100 [==============================] - 2721s 27s/step - loss: 0.0407 - rpn_class_loss: 5.9681e-04 - rpn_bbox_loss: 1.4295e-04 - mrcnn_class_loss: 0.0118 - mrcnn_bbox_loss: 0.0012 - mrcnn_mask_loss: 0.0269 - val_loss: 3.6190 - val_rpn_class_loss: 0.1568 - val_rpn_bbox_loss: 0.3797 - val_mrcnn_class_loss: 1.4514 - val_mrcnn_bbox_loss: 0.4337 - val_mrcnn_mask_loss: 1.1974
+Epoch 21/30
+100/100 [==============================] - 2723s 27s/step - loss: 0.0464 - rpn_class_loss: 6.6247e-04 - rpn_bbox_loss: 2.4174e-04 - mrcnn_class_loss: 0.0166 - mrcnn_bbox_loss: 0.0019 - mrcnn_mask_loss: 0.0269 - val_loss: 3.9927 - val_rpn_class_loss: 0.1823 - val_rpn_bbox_loss: 0.3894 - val_mrcnn_class_loss: 1.7446 - val_mrcnn_bbox_loss: 0.4426 - val_mrcnn_mask_loss: 1.2337
+Epoch 22/30
+100/100 [==============================] - 2737s 27s/step - loss: 0.0433 - rpn_class_loss: 7.1217e-04 - rpn_bbox_loss: 2.1649e-04 - mrcnn_class_loss: 0.0140 - mrcnn_bbox_loss: 0.0018 - mrcnn_mask_loss: 0.0266 - val_loss: 3.7136 - val_rpn_class_loss: 0.1754 - val_rpn_bbox_loss: 0.3939 - val_mrcnn_class_loss: 1.5209 - val_mrcnn_bbox_loss: 0.4437 - val_mrcnn_mask_loss: 1.1797
+Epoch 23/30
+100/100 [==============================] - 2712s 27s/step - loss: 0.0380 - rpn_class_loss: 4.0915e-04 - rpn_bbox_loss: 1.6153e-04 - mrcnn_class_loss: 0.0107 - mrcnn_bbox_loss: 0.0013 - mrcnn_mask_loss: 0.0254 - val_loss: 3.9392 - val_rpn_class_loss: 0.1652 - val_rpn_bbox_loss: 0.3911 - val_mrcnn_class_loss: 1.7312 - val_mrcnn_bbox_loss: 0.4654 - val_mrcnn_mask_loss: 1.1863
+Epoch 24/30
+100/100 [==============================] - 2728s 27s/step - loss: 0.0412 - rpn_class_loss: 0.0013 - rpn_bbox_loss: 1.3672e-04 - mrcnn_class_loss: 0.0132 - mrcnn_bbox_loss: 0.0015 - mrcnn_mask_loss: 0.0250 - val_loss: 3.6483 - val_rpn_class_loss: 0.1967 - val_rpn_bbox_loss: 0.3878 - val_mrcnn_class_loss: 1.3971 - val_mrcnn_bbox_loss: 0.4597 - val_mrcnn_mask_loss: 1.2069
+Epoch 25/30
+100/100 [==============================] - 2724s 27s/step - loss: 0.0400 - rpn_class_loss: 7.4344e-04 - rpn_bbox_loss: 1.8991e-04 - mrcnn_class_loss: 0.0120 - mrcnn_bbox_loss: 0.0018 - mrcnn_mask_loss: 0.0253 - val_loss: 3.5616 - val_rpn_class_loss: 0.1850 - val_rpn_bbox_loss: 0.3955 - val_mrcnn_class_loss: 1.3244 - val_mrcnn_bbox_loss: 0.4554 - val_mrcnn_mask_loss: 1.2013
+Epoch 26/30
+100/100 [==============================] - 2722s 27s/step - loss: 0.0351 - rpn_class_loss: 5.6032e-04 - rpn_bbox_loss: 1.3362e-04 - mrcnn_class_loss: 0.0089 - mrcnn_bbox_loss: 0.0012 - mrcnn_mask_loss: 0.0243 - val_loss: 3.9637 - val_rpn_class_loss: 0.1941 - val_rpn_bbox_loss: 0.3902 - val_mrcnn_class_loss: 1.6932 - val_mrcnn_bbox_loss: 0.4682 - val_mrcnn_mask_loss: 1.2179
+Epoch 27/30
+100/100 [==============================] - 2727s 27s/step - loss: 0.0335 - rpn_class_loss: 7.3564e-04 - rpn_bbox_loss: 1.4032e-04 - mrcnn_class_loss: 0.0073 - mrcnn_bbox_loss: 0.0011 - mrcnn_mask_loss: 0.0242 - val_loss: 3.9106 - val_rpn_class_loss: 0.1995 - val_rpn_bbox_loss: 0.3922 - val_mrcnn_class_loss: 1.6134 - val_mrcnn_bbox_loss: 0.4630 - val_mrcnn_mask_loss: 1.2425
+Epoch 28/30
+100/100 [==============================] - 2718s 27s/step - loss: 0.0281 - rpn_class_loss: 4.9381e-04 - rpn_bbox_loss: 5.9894e-05 - mrcnn_class_loss: 0.0038 - mrcnn_bbox_loss: 4.9947e-04 - mrcnn_mask_loss: 0.0232 - val_loss: 4.0326 - val_rpn_class_loss: 0.1880 - val_rpn_bbox_loss: 0.3905 - val_mrcnn_class_loss: 1.7703 - val_mrcnn_bbox_loss: 0.4412 - val_mrcnn_mask_loss: 1.2426
+Epoch 29/30
+100/100 [==============================] - 2725s 27s/step - loss: 0.0328 - rpn_class_loss: 3.6045e-04 - rpn_bbox_loss: 1.5120e-04 - mrcnn_class_loss: 0.0077 - mrcnn_bbox_loss: 0.0011 - mrcnn_mask_loss: 0.0234 - val_loss: 4.1616 - val_rpn_class_loss: 0.2108 - val_rpn_bbox_loss: 0.3925 - val_mrcnn_class_loss: 1.8356 - val_mrcnn_bbox_loss: 0.4468 - val_mrcnn_mask_loss: 1.2759
+Epoch 30/30
+100/100 [==============================] - 2720s 27s/step - loss: 0.0347 - rpn_class_loss: 5.3864e-04 - rpn_bbox_loss: 1.8576e-04 - mrcnn_class_loss: 0.0097 - mrcnn_bbox_loss: 0.0013 - mrcnn_mask_loss: 0.0229 - val_loss: 4.2653 - val_rpn_class_loss: 0.2068 - val_rpn_bbox_loss: 0.3980 - val_mrcnn_class_loss: 1.8644 - val_mrcnn_bbox_loss: 0.4508 - val_mrcnn_mask_loss: 1.3453
+
+
+computing@computing-PC-BX17694:~/bkbilly/Mask_RCNN/samples/balloon$ python3 balloon.py splash --weights=/home/computing/bkbilly/Mask_RCNN/logs/balloon20191129T2322/mask_rcnn_balloon_0001.h5 --image=/home/computing/bkbilly/ROS-Assignment/images/plants2/train/ros_plant2_1.jpg 
