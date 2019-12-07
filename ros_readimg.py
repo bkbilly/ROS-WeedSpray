@@ -98,7 +98,7 @@ class image_projection(CanopyClass):
         # ground, ground_mask = self.filter_colors(cv_image, 'ground')
         ground_inv, ground_inv_mask = self.filter_colors(cv_image, 'ground_inv')
         plant, plant_mask = self.filter_colors(ground_inv, self.inputimage)
-        contours_image, contours, contours_boxes = self.get_contours(plant, cv_image)
+        contours_image, contours, contours_boxes, contours_points = self.get_contours(plant, cv_image)
         # self.publish_contours(contours)
 
         contours_s = cv2.resize(contours_image, (0, 0), fx=0.5, fy=0.5)
