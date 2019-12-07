@@ -25,9 +25,11 @@ import numpy as np
 
 import actionlib
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+import tf
 
 # My libs
 from canopy import CanopyClass
+import ipdb
 
 def movebase_client(x, y, z):
     client = actionlib.SimpleActionClient('move_base',MoveBaseAction)
@@ -63,7 +65,7 @@ class image_projection(CanopyClass):
             Image,
             queue_size=5)
         self.contours_pub = rospy.Publisher(
-            "/opencv/contours/{}".format(self.robot),
+            "/weed/points/{}".format(self.robot),
             PoseStamped)
 
         self.bridge = CvBridge()
@@ -79,7 +81,39 @@ class image_projection(CanopyClass):
 
 
     def publish_contours(self, contours):
-        self.image_pub.publish(contours)
+        for cnt in contours:
+            u = cnt[0]
+            v = cnt[1]
+            print(u,v)
+            time = rospy.Time(0)
+            listener = tf.listener.TransformListener()
+            # ipdb.set_trace()
+            asdf = self.camera_model.rectifyPoint((u, v))
+            camera_point = self.camera_model.projectPixelTo3dRay((asdf))
+            point_msg = PoseStamped()
+            point_msg.pose.position.x = camera_point[0]
+            point_msg.pose.position.y = camera_point[1]
+            point_msg.pose.position.z = 0
+            point_msg.pose.orientation.x = 0
+            point_msg.pose.orientation.y = 0
+            point_msg.pose.orientation.z = 0
+            point_msg.pose.orientation.w = 1
+            point_msg.header.frame_id = self.camera_model.tfFrame()
+            point_msg.header.stamp = time
+            try:
+                listener.waitForTransform(self.camera_model.tfFrame(), 'map', time, rospy.Duration(1))
+                tf_point = listener.transformPose('map', point_msg)
+                print(tf_point)
+                self.contours_pub.publish(tf_point)
+                # print(self.convert_from_robot_to_map(tf_point.pose.position.y, tf_point.pose.position.x))
+            except Exception:
+                pass
+
+    def convert_from_robot_to_map(self, robot_y, robot_x):
+        global map_info
+        map_x = (robot_x - map_info.info.origin.position.x) / map_info.info.resolution
+        map_y = (robot_y - map_info.info.origin.position.y) / map_info.info.resolution
+        return map_y, map_x
 
     def image_callback(self, data):
         if not self.camera_model:
@@ -99,7 +133,7 @@ class image_projection(CanopyClass):
         ground_inv, ground_inv_mask = self.filter_colors(cv_image, 'ground_inv')
         plant, plant_mask = self.filter_colors(ground_inv, self.inputimage)
         contours_image, contours, contours_boxes, contours_points = self.get_contours(plant, cv_image)
-        # self.publish_contours(contours)
+        self.publish_contours(contours_points)
 
         contours_s = cv2.resize(contours_image, (0, 0), fx=0.5, fy=0.5)
 
