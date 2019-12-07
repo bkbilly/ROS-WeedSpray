@@ -26,6 +26,9 @@ import numpy as np
 import actionlib
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
+# My libs
+from canopy import CanopyClass
+
 def movebase_client(x, y, z):
     client = actionlib.SimpleActionClient('move_base',MoveBaseAction)
     client.wait_for_server()
@@ -48,7 +51,7 @@ def movebase_client(x, y, z):
         # time.sleep(3)
         return client.get_result()
 
-class image_projection:
+class image_projection(CanopyClass):
     camera_model = None
     inputimage = None
 
@@ -59,6 +62,9 @@ class image_projection:
             "/opencv/image_raw/{}".format(self.robot),
             Image,
             queue_size=5)
+        self.contours_pub = rospy.Publisher(
+            "/opencv/contours/{}".format(self.robot),
+            PoseStamped)
 
         self.bridge = CvBridge()
 
@@ -71,79 +77,9 @@ class image_projection:
             "/%s/kinect2_camera/hd/image_color_rect" % (self.robot),
             Image, self.image_callback)
 
-    def filter_colors(self, cv_image, runtype):
-        hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
-        if runtype == 'simple':
-            # hsv = cv2.blur(hsv, (10, 10))
-            hsv = cv2.GaussianBlur(hsv, ksize=(17, 17), sigmaX=10)
-            lower_filter = np.array([30, 120, 0])
-            upper_filter = np.array([50, 180, 200])
-        if runtype == 'simple_inv':
-            # hsv = cv2.blur(hsv, (10, 10))
-            hsv = cv2.GaussianBlur(hsv, ksize=(17, 17), sigmaX=10)
-            lower_filter = np.array([0, 0, 0])
-            upper_filter = np.array([255, 80, 255])
-        elif runtype == 'realeasy':
-            hsv = cv2.blur(hsv, (40, 40))
-            hsv = cv2.GaussianBlur(hsv, ksize=(17, 17), sigmaX=10)
-            lower_filter = np.array([0, 10, 40])
-            upper_filter = np.array([60, 150, 255])
-        elif runtype == 'realeasy_inv':
-            # hsv = cv2.blur(hsv, (40, 40))
-            hsv = cv2.GaussianBlur(hsv, ksize=(17, 17), sigmaX=10)
-            lower_filter = np.array([30, 30, 0])
-            upper_filter = np.array([100, 90, 40])
-        elif runtype == 'realhard':
-            hsv = cv2.blur(hsv, (40, 40))
-            # hsv = cv2.GaussianBlur(hsv, ksize=(17,17), sigmaX=10)
-            lower_filter = np.array([40, 40, 0])
-            upper_filter = np.array([100, 80, 200])
-        elif runtype == 'realhard_inv':
-            hsv = cv2.blur(hsv, (40, 40))
-            hsv = cv2.GaussianBlur(hsv, ksize=(17,17), sigmaX=10)
-            lower_filter = np.array([0, 90, 0])
-            upper_filter = np.array([255, 100, 255])
-        elif runtype == 'ground':
-            # hsv = cv2.blur(hsv, (40, 40))
-            hsv = cv2.GaussianBlur(hsv, ksize=(17, 17), sigmaX=10)
-            lower_filter = np.array([0, 30, 30])
-            upper_filter = np.array([20, 140, 80])
-        elif runtype == 'ground_inv':
-            # hsv = cv2.blur(hsv, (40, 40))
-            hsv = cv2.GaussianBlur(hsv, ksize=(17, 17), sigmaX=10)
-            lower_filter = np.array([30, 0, 10])
-            upper_filter = np.array([90, 255, 150])
 
-        mask = cv2.inRange(hsv, lower_filter, upper_filter)
-        res = cv2.bitwise_and(cv_image, cv_image, mask=mask)
-        # cv2.imshow('hsv', hsv)
-        return res, mask
-
-    def get_contours(self, res, cv_image):
-        # Grayscale
-        gray_res = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
-        # cv2.imshow('Canny Edges After Contouring', gray_res)
-
-        # Find Canny edges
-        # edged = cv2.Canny(gray_res, 150, 150)
-        ret, edged = cv2.threshold(gray_res, 20, 255, 0)
-
-        # Finding Contours
-        im2, contours, hierarchy = cv2.findContours(
-            edged,
-            cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        # contours = max(contours, key=cv2.contourArea)
-
-        threshold_area = 300
-        filtered_contours = []
-        for cnt in contours:
-            area = cv2.contourArea(cnt)
-            if area > threshold_area:
-                filtered_contours.append(cnt)
-        # cv2.imshow('Canny Edges After Contouring', edged)
-        contours = copy.copy(cv_image)
-        cv2.drawContours(contours, filtered_contours, -1, (0, 255, 0), 1)
-        return contours, filtered_contours
+    def publish_contours(self, contours):
+        self.image_pub.publish(contours)
 
     def image_callback(self, data):
         if not self.camera_model:
@@ -162,9 +98,10 @@ class image_projection:
         # ground, ground_mask = self.filter_colors(cv_image, 'ground')
         ground_inv, ground_inv_mask = self.filter_colors(cv_image, 'ground_inv')
         plant, plant_mask = self.filter_colors(ground_inv, self.inputimage)
-        contours, filtered_contours = self.get_contours(plant, cv_image)
-        contours_s = cv2.resize(contours, (0, 0), fx=0.5, fy=0.5)
+        contours_image, contours, contours_boxes = self.get_contours(plant, cv_image)
+        # self.publish_contours(contours)
 
+        contours_s = cv2.resize(contours_image, (0, 0), fx=0.5, fy=0.5)
 
         # Publish new image
         self.image_pub.publish(
