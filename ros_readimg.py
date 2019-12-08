@@ -80,6 +80,7 @@ class image_projection(CanopyClass):
         self.camera_info_sub.unregister()  # Only subscribe once
 
     def publish_contours(self, contours):
+        print('Found points: {}'.format(len(contours)))
         for cnt in contours:
             time = rospy.Time(0)
 
@@ -94,11 +95,12 @@ class image_projection(CanopyClass):
             self.point_msg.pose.orientation.w = 1
             self.point_msg.header.frame_id = self.camera_model.tfFrame()
             self.point_msg.header.stamp = time
-            print(self.camera_model.tfFrame())
+            # print(self.camera_model.tfFrame())
             try:
                 self.listener.lookupTransform(self.camera_model.tfFrame(), 'map', time)
                 tf_point = self.listener.transformPose('map', self.point_msg)
-                print(tf_point)
+                # print(tf_point)
+                # print(tf_point.pose.position.x, tf_point.pose.position.y)
                 self.contours_pub.publish(tf_point)
             except Exception:
                 pass
@@ -135,6 +137,7 @@ def main(args):
     img_proj = image_projection('thorvald_001')
     # image_projection('thorvald_002')
 
+    img_proj.inputimage = None
     img_proj.inputimage = 'simple_inv'
     # movebase_client(6, -3.8, 90)
     # movebase_client(-6, -3.8, 90)
