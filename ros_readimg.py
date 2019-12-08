@@ -61,7 +61,7 @@ class image_projection(CanopyClass):
         self.inputimage = inputimage
         self.robot = robot
         self.image_pub = rospy.Publisher(
-            "/opencv/image_raw/{}".format(self.robot),
+            "/weed/spray/{}".format(self.robot),
             Image,
             queue_size=5)
         self.contours_pub = rospy.Publisher(
@@ -80,29 +80,28 @@ class image_projection(CanopyClass):
             Image, self.image_callback)
 
 
+        self.point_msg = PoseStamped()
+        self.listener = tf.listener.TransformListener()
+
+
     def publish_contours(self, contours):
         for cnt in contours:
-            u = cnt[0]
-            v = cnt[1]
-            print(u,v)
             time = rospy.Time(0)
-            listener = tf.listener.TransformListener()
-            # ipdb.set_trace()
-            asdf = self.camera_model.rectifyPoint((u, v))
-            camera_point = self.camera_model.projectPixelTo3dRay((asdf))
-            point_msg = PoseStamped()
-            point_msg.pose.position.x = camera_point[0]
-            point_msg.pose.position.y = camera_point[1]
-            point_msg.pose.position.z = 0
-            point_msg.pose.orientation.x = 0
-            point_msg.pose.orientation.y = 0
-            point_msg.pose.orientation.z = 0
-            point_msg.pose.orientation.w = 1
-            point_msg.header.frame_id = self.camera_model.tfFrame()
-            point_msg.header.stamp = time
+
+            rect = self.camera_model.rectifyPoint(cnt)
+            camera_point = self.camera_model.projectPixelTo3dRay((rect))
+            self.point_msg.pose.position.x = camera_point[0]
+            self.point_msg.pose.position.y = camera_point[1]
+            self.point_msg.pose.position.z = 0
+            self.point_msg.pose.orientation.x = 0
+            self.point_msg.pose.orientation.y = 0
+            self.point_msg.pose.orientation.z = 0
+            self.point_msg.pose.orientation.w = 1
+            self.point_msg.header.frame_id = self.camera_model.tfFrame()
+            self.point_msg.header.stamp = time
             try:
-                listener.waitForTransform(self.camera_model.tfFrame(), 'map', time, rospy.Duration(1))
-                tf_point = listener.transformPose('map', point_msg)
+                self.listener.lookupTransform(self.camera_model.tfFrame(), 'map', time)
+                tf_point = self.listener.transformPose('map', self.point_msg)
                 print(tf_point)
                 self.contours_pub.publish(tf_point)
                 # print(self.convert_from_robot_to_map(tf_point.pose.position.y, tf_point.pose.position.x))
@@ -154,25 +153,25 @@ def main(args):
     # image_projection('thorvald_002')
 
     img_proj.inputimage = 'simple_inv'
-    movebase_client(6, -3.8, 90)
-    movebase_client(-6, -3.8, 90)
-    movebase_client(-6, -2.7, 0)
-    movebase_client(6, -2.7, 0)
-    img_proj.inputimage = None
+    # movebase_client(6, -3.8, 90)
+    # movebase_client(-6, -3.8, 90)
+    # movebase_client(-6, -2.7, 0)
+    # movebase_client(6, -2.7, 0)
+    # img_proj.inputimage = None
 
-    img_proj.inputimage = 'realeasy_inv'
-    movebase_client(6, -0.7, 90)
-    movebase_client(-6, -0.7, 90)
-    movebase_client(-6, 0.2, 0)
-    movebase_client(6, 0.2, 0)
-    img_proj.inputimage = None
+    # img_proj.inputimage = 'realeasy_inv'
+    # movebase_client(6, -0.7, 90)
+    # movebase_client(-6, -0.7, 90)
+    # movebase_client(-6, 0.2, 0)
+    # movebase_client(6, 0.2, 0)
+    # img_proj.inputimage = None
 
-    img_proj.inputimage = 'realhard_inv'
-    movebase_client(6, 2.2, 90)
-    movebase_client(-6, 2.2, 90)
-    movebase_client(-6, 3.2, 0)
-    movebase_client(6, 3.2, 0)
-    img_proj.inputimage = None
+    # img_proj.inputimage = 'realhard_inv'
+    # movebase_client(6, 2.2, 90)
+    # movebase_client(-6, 2.2, 90)
+    # movebase_client(-6, 3.2, 0)
+    # movebase_client(6, 3.2, 0)
+    # img_proj.inputimage = None
 
     try:
         rospy.spin()
