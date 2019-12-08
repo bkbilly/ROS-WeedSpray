@@ -8,7 +8,7 @@ import rospy
 import tf
 
 # Ros Messages
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PointStamped
 from cv_bridge import CvBridge, CvBridgeError
 
 
@@ -19,8 +19,8 @@ class image_projection():
         self.keeplist = []
 
         self.camera_info_sub = rospy.Subscriber(
-            "/weed/points/{}".format(self.robot),
-            PoseStamped,
+            "/weed/point/{}".format(self.robot),
+            PointStamped,
             self.points_callback)
 
 

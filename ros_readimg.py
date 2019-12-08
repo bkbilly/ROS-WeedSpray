@@ -11,8 +11,8 @@ import rospy
 import image_geometry
 
 # Ros Messages
-from sensor_msgs.msg import Image, CameraInfo
-from geometry_msgs.msg import PoseStamped
+from sensor_msgs.msg import Image, CameraInfo, PointCloud
+from geometry_msgs.msg import PointStamped, Point32
 from cv_bridge import CvBridge, CvBridgeError
 
 import actionlib
@@ -56,9 +56,16 @@ class image_projection(CanopyClass):
             "/weed/spray/{}".format(self.robot),
             Image,
             queue_size=5)
+
+        self.contour_pub = rospy.Publisher(
+            "/weed/point/{}".format(self.robot),
+            PointStamped,
+            queue_size=5)
+
         self.contours_pub = rospy.Publisher(
             "/weed/points/{}".format(self.robot),
-            PoseStamped)
+            PointCloud,
+            queue_size=5)
 
         self.bridge = CvBridge()
 
@@ -71,39 +78,50 @@ class image_projection(CanopyClass):
             "/%s/kinect2_camera/hd/image_color_rect" % (self.robot),
             Image, self.image_callback)
 
-        self.point_msg = PoseStamped()
-        self.listener = tf.listener.TransformListener()
+        self.point_msg = PointStamped()
+        self.points_msg = PointCloud()
+        self.tflistener = tf.listener.TransformListener()
 
     def camera_info_callback(self, data):
         self.camera_model = image_geometry.PinholeCameraModel()
         self.camera_model.fromCameraInfo(data)
         self.camera_info_sub.unregister()  # Only subscribe once
 
-    def publish_contours(self, contours):
+    def publish_points(self, contours):
+        print('Found points: {}'.format(len(contours)))
+        time = rospy.Time(0)
+        self.points_msg.points = []
+        self.points_msg.header.frame_id = self.camera_model.tfFrame()
+        self.points_msg.header.stamp = time
+        for cnt in contours:
+            rect = self.camera_model.rectifyPoint(cnt)
+            x, y, z = self.camera_model.projectPixelTo3dRay(rect)
+            self.points_msg.points.append(Point32(x, y, z))
+        print(self.points_msg.points)
+
+        # self.tflistener.lookupTransform(self.camera_model.tfFrame(), 'map', time)
+        tf_points = self.tflistener.transformPointCloud('map', self.points_msg)
+        self.contours_pub.publish(tf_points)
+
+    def publish_point(self, contours):
         print('Found points: {}'.format(len(contours)))
         for cnt in contours:
             time = rospy.Time(0)
-
             rect = self.camera_model.rectifyPoint(cnt)
-            camera_point = self.camera_model.projectPixelTo3dRay((rect))
-            self.point_msg.pose.position.x = camera_point[0]
-            self.point_msg.pose.position.y = camera_point[1]
-            self.point_msg.pose.position.z = 0
-            self.point_msg.pose.orientation.x = 0
-            self.point_msg.pose.orientation.y = 0
-            self.point_msg.pose.orientation.z = 0
-            self.point_msg.pose.orientation.w = 1
+            camera_point = self.camera_model.projectPixelTo3dRay(rect)
+            self.point_msg.point.x = camera_point[0]
+            self.point_msg.point.y = camera_point[1]
+            self.point_msg.point.z = camera_point[2]
             self.point_msg.header.frame_id = self.camera_model.tfFrame()
             self.point_msg.header.stamp = time
-            # print(self.camera_model.tfFrame())
-            try:
-                self.listener.lookupTransform(self.camera_model.tfFrame(), 'map', time)
-                tf_point = self.listener.transformPose('map', self.point_msg)
-                # print(tf_point)
-                # print(tf_point.pose.position.x, tf_point.pose.position.y)
-                self.contours_pub.publish(tf_point)
-            except Exception:
-                pass
+
+            # print(self.point_msg)
+            self.tflistener.lookupTransform(self.camera_model.tfFrame(), 'map', time)
+            tf_point = self.tflistener.transformPoint('map', self.point_msg)
+            print(tf_point)
+
+            print(tf_point.point.x, tf_point.point.y)
+            self.contour_pub.publish(tf_point)
 
     def image_callback(self, data):
         if not self.camera_model:
@@ -122,7 +140,8 @@ class image_projection(CanopyClass):
         ground_inv, ground_inv_mask = self.filter_colors(cv_image, 'ground_inv')
         plant, plant_mask = self.filter_colors(ground_inv, self.inputimage)
         contours_image, contours, contours_boxes, contours_points = self.get_contours(plant, cv_image)
-        self.publish_contours(contours_points)
+        self.publish_points(contours_points)
+        # self.publish_point(contours_points)
 
         contours_s = cv2.resize(contours_image, (0, 0), fx=0.5, fy=0.5)
 
