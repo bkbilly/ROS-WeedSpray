@@ -83,6 +83,11 @@ class image_projection(CanopyClass):
         self.point_msg = PoseStamped()
         self.listener = tf.listener.TransformListener()
 
+    def camera_info_callback(self, data):
+        self.camera_model = image_geometry.PinholeCameraModel()
+        self.camera_model.fromCameraInfo(data)
+        self.camera_info_sub.unregister()  # Only subscribe once
+
 
     def publish_contours(self, contours):
         for cnt in contours:
@@ -99,20 +104,14 @@ class image_projection(CanopyClass):
             self.point_msg.pose.orientation.w = 1
             self.point_msg.header.frame_id = self.camera_model.tfFrame()
             self.point_msg.header.stamp = time
+            print(self.camera_model.tfFrame())
             try:
                 self.listener.lookupTransform(self.camera_model.tfFrame(), 'map', time)
                 tf_point = self.listener.transformPose('map', self.point_msg)
                 print(tf_point)
                 self.contours_pub.publish(tf_point)
-                # print(self.convert_from_robot_to_map(tf_point.pose.position.y, tf_point.pose.position.x))
             except Exception:
                 pass
-
-    def convert_from_robot_to_map(self, robot_y, robot_x):
-        global map_info
-        map_x = (robot_x - map_info.info.origin.position.x) / map_info.info.resolution
-        map_y = (robot_y - map_info.info.origin.position.y) / map_info.info.resolution
-        return map_y, map_x
 
     def image_callback(self, data):
         if not self.camera_model:
@@ -139,11 +138,6 @@ class image_projection(CanopyClass):
         # Publish new image
         self.image_pub.publish(
             self.bridge.cv2_to_imgmsg(contours_s, encoding="bgr8"))
-
-    def camera_info_callback(self, data):
-        self.camera_model = image_geometry.PinholeCameraModel()
-        self.camera_model.fromCameraInfo(data)
-        self.camera_info_sub.unregister()  # Only subscribe once
 
 
 def main(args):
