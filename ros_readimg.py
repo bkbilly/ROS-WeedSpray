@@ -2,14 +2,11 @@
 
 # Python libs
 import sys
-import time
 
 # OpenCV
 import cv2
-from cv2 import imshow
 
 # Ros libraries
-import roslib
 import rospy
 import image_geometry
 
@@ -17,11 +14,6 @@ import image_geometry
 from sensor_msgs.msg import Image, CameraInfo
 from geometry_msgs.msg import PoseStamped
 from cv_bridge import CvBridge, CvBridgeError
-from sensor_msgs.msg import CompressedImage
-import copy
-
-import time
-import numpy as np
 
 import actionlib
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
@@ -29,10 +21,10 @@ import tf
 
 # My libs
 from canopy import CanopyClass
-import ipdb
+
 
 def movebase_client(x, y, z):
-    client = actionlib.SimpleActionClient('move_base',MoveBaseAction)
+    client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
     client.wait_for_server()
 
     goal = MoveBaseGoal()
@@ -50,8 +42,8 @@ def movebase_client(x, y, z):
         rospy.signal_shutdown("Action server not available!")
     else:
         print('Done moving to: {}, {}, {}'.format(x, y, z))
-        # time.sleep(3)
         return client.get_result()
+
 
 class image_projection(CanopyClass):
     camera_model = None
@@ -79,7 +71,6 @@ class image_projection(CanopyClass):
             "/%s/kinect2_camera/hd/image_color_rect" % (self.robot),
             Image, self.image_callback)
 
-
         self.point_msg = PoseStamped()
         self.listener = tf.listener.TransformListener()
 
@@ -87,7 +78,6 @@ class image_projection(CanopyClass):
         self.camera_model = image_geometry.PinholeCameraModel()
         self.camera_model.fromCameraInfo(data)
         self.camera_info_sub.unregister()  # Only subscribe once
-
 
     def publish_contours(self, contours):
         for cnt in contours:
@@ -125,7 +115,6 @@ class image_projection(CanopyClass):
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
         except CvBridgeError as e:
             print(e)
-
 
         # ground, ground_mask = self.filter_colors(cv_image, 'ground')
         ground_inv, ground_inv_mask = self.filter_colors(cv_image, 'ground_inv')
@@ -171,7 +160,6 @@ def main(args):
         rospy.spin()
     except KeyboardInterrupt:
         print "Shutting down"
-    cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':

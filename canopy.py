@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import copy
 
+
 class CanopyClass():
 
     def showPlot(self, img):
@@ -13,7 +14,6 @@ class CanopyClass():
             plt.plot(hist, color=col)
             plt.xlim([0, 256])
         plt.show()
-
 
     def filter_colors(self, cv_image, runtype):
         hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
@@ -44,7 +44,7 @@ class CanopyClass():
             upper_filter = np.array([100, 80, 200])
         elif runtype == 'realhard_inv':
             hsv = cv2.blur(hsv, (40, 40))
-            hsv = cv2.GaussianBlur(hsv, ksize=(17,17), sigmaX=10)
+            hsv = cv2.GaussianBlur(hsv, ksize=(17, 17), sigmaX=10)
             lower_filter = np.array([0, 90, 0])
             upper_filter = np.array([255, 100, 255])
         elif runtype == 'ground':
@@ -69,7 +69,7 @@ class CanopyClass():
             x, y, w, h = cv2.boundingRect(cnt)
             rects.append([x, y, w, h])
             rects.append([x, y, w, h])
-            cv2.rectangle(cv_image, (x, y), (x+w, y+h), (0, 0, 255), 2)
+            cv2.rectangle(cv_image, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
         contours_points = []
         contours_boxes, weights = cv2.groupRectangles(rects, 1, 0.2)
@@ -78,7 +78,7 @@ class CanopyClass():
             contours_points.append(middle)
             cv2.circle(cv_image, middle, 7, (255, 255, 255), -1)
             x, y, w, h = rect
-            cv2.rectangle(cv_image, (x, y), (x+w, y+h), (255, 0, 0), 1)
+            cv2.rectangle(cv_image, (x, y), (x + w, y + h), (255, 0, 0), 1)
         return cv_image, contours_boxes, contours_points
 
     def get_contours(self, res, cv_image):
@@ -121,7 +121,6 @@ if __name__ == "__main__":
     inputimage = ['images/plants2/train/ros_plant2_1.jpg', 'realeasy_inv']
     cv_image = cv2.imread(inputimage[0])
     # hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
-
 
     can = CanopyClass()
     # showPlot(cv_image)
