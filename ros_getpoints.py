@@ -6,9 +6,11 @@ import math
 
 # Ros libraries
 import rospy
+import tf
 
 # Ros Messages
 from sensor_msgs.msg import PointCloud
+from nav_msgs.msg import Odometry
 
 
 class image_projection():
@@ -21,6 +23,20 @@ class image_projection():
             "/weed/points/{}".format(self.robot),
             PointCloud,
             self.points_callback)
+
+        self.camera_info_sub = rospy.Subscriber(
+            "/{}/odometry/base_raw".format(self.robot),
+            Odometry,
+            self.odometry_callback)
+
+        self.tflistener = tf.listener.TransformListener()
+
+    def odometry_callback(self, data):
+        trans, rot = self.tflistener.lookupTransform(
+            'map',
+            '{}/sprayer'.format(self.robot),
+            data.header.stamp)
+        # print(trans, rot)
 
     def points_callback(self, data):
         # print(data)
