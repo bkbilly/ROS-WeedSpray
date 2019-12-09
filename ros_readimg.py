@@ -96,11 +96,15 @@ class image_projection(CanopyClass):
         for cnt in contours:
             rect = self.camera_model.rectifyPoint(cnt)
             x, y, z = self.camera_model.projectPixelTo3dRay(rect)
+            x *= 0.493
+            y *= 0.493
+            z = 0.493
             self.points_msg.points.append(Point32(x, y, z))
-        print(self.points_msg.points)
+        # print(self.points_msg.points)
 
         # self.tflistener.lookupTransform(self.camera_model.tfFrame(), 'map', time)
         tf_points = self.tflistener.transformPointCloud('map', self.points_msg)
+        # print(tf_points)
         self.contours_pub.publish(tf_points)
 
     def publish_point(self, contours):
