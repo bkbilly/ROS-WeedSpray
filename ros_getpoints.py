@@ -13,6 +13,7 @@ import rosservice
 from sensor_msgs.msg import PointCloud
 from nav_msgs.msg import Odometry
 
+from subprocess import Popen
 
 class image_projection():
 
@@ -47,6 +48,7 @@ class image_projection():
 
         self.points_pub.publish(self.points_msg)
 
+
     def odometry_callback(self, data):
         try:
             trans, rot = self.tflistener.lookupTransform(
@@ -69,7 +71,12 @@ class image_projection():
 
         if shouldSpray:
             self.notsprayed = newkeep
-            rosservice.call_service('/thorvald_001/spray', [])
+            # rosservice.call_service('/thorvald_001/spray', [])
+            Popen('rosservice call /thorvald_001/spray',
+                  shell=True,
+                  stdin=None,
+                  stdout=None,
+                  stderr=None)
 
         self.publish_allpoints()
 
