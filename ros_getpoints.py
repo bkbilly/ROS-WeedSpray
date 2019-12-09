@@ -7,6 +7,7 @@ import math
 # Ros libraries
 import rospy
 import tf
+import rosservice
 
 # Ros Messages
 from sensor_msgs.msg import PointCloud
@@ -18,44 +19,77 @@ class image_projection():
     def __init__(self, robot):
         self.robot = robot
         self.keeplist = []
+        self.notsprayed = []
 
-        self.camera_info_sub = rospy.Subscriber(
+        rospy.Subscriber(
             "/weed/points/{}".format(self.robot),
             PointCloud,
             self.points_callback)
 
-        self.camera_info_sub = rospy.Subscriber(
+        rospy.Subscriber(
             "/{}/odometry/base_raw".format(self.robot),
             Odometry,
             self.odometry_callback)
 
+        self.points_pub = rospy.Publisher(
+            "/weed/allpoints/{}".format(self.robot),
+            PointCloud,
+            queue_size=5)
+        self.points_msg = PointCloud()
+
         self.tflistener = tf.listener.TransformListener()
 
+    def publish_allpoints(self):
+        time = rospy.Time(0)
+        self.points_msg.points = self.keeplist
+        self.points_msg.header.frame_id = 'map'
+        self.points_msg.header.stamp = time
+
+        self.points_pub.publish(self.points_msg)
+
     def odometry_callback(self, data):
-        trans, rot = self.tflistener.lookupTransform(
-            'map',
-            '{}/sprayer'.format(self.robot),
-            data.header.stamp)
-        # print(trans, rot)
+        try:
+            trans, rot = self.tflistener.lookupTransform(
+                'map',
+                '{}/sprayer'.format(self.robot),
+                data.header.stamp)
+            # print(trans, rot)
+        except Exception:
+            return
+
+        newkeep = []
+        shouldSpray = False
+        for keep in self.notsprayed:
+            dx = abs(trans[0] - keep.x)
+            # print(dx)
+            if dx < 0.07:
+                shouldSpray = True
+            else:
+                newkeep.append(keep)
+
+        if shouldSpray:
+            self.notsprayed = newkeep
+            rosservice.call_service('/thorvald_001/spray', [])
+
+        self.publish_allpoints()
 
     def points_callback(self, data):
-        # print(data)
+        hasChanged = False
         for point in data.points:
-            new_position = (point.x, point.y, point.z)
-            # print(new_position)
             found_close = False
             for keep in self.keeplist:
-                dx = abs(new_position[0] - keep[0])
-                dy = abs(new_position[1] - keep[1])
-                # dz = abs(new_position[2] - keep[2])
-                # dist = dx + dy + dz
+                dx = abs(point.x - keep.x)
+                dy = abs(point.y - keep.y)
                 dist = math.hypot(dx, dy)
-                if dist < 0.1:
+                if dist < 0.07:
                     found_close = True
 
             if not found_close:
-                self.keeplist.append(new_position)
-        print('Found points: {}'.format(len(self.keeplist)))
+                hasChanged = True
+                self.keeplist.append(point)
+                self.notsprayed.append(point)
+        if hasChanged:
+            print('Found points: {}'.format(len(self.keeplist)))
         # print(self.keeplist)
 
 
