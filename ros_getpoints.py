@@ -15,6 +15,7 @@ from nav_msgs.msg import Odometry
 
 from subprocess import Popen
 
+
 class image_projection():
 
     def __init__(self, robot):
@@ -48,7 +49,6 @@ class image_projection():
 
         self.points_pub.publish(self.points_msg)
 
-
     def odometry_callback(self, data):
         try:
             trans, rot = self.tflistener.lookupTransform(
@@ -71,18 +71,20 @@ class image_projection():
 
         if shouldSpray:
             self.notsprayed = newkeep
+            print('spray!!!')
             # rosservice.call_service('/thorvald_001/spray', [])
-            Popen('rosservice call /thorvald_001/spray',
-                  shell=True,
-                  stdin=None,
-                  stdout=None,
-                  stderr=None)
+            # Popen('rosservice call /thorvald_001/spray',
+            #       shell=True,
+            #       stdin=None,
+            #       stdout=None,
+            #       stderr=None)
 
         self.publish_allpoints()
 
     def points_callback(self, data):
         hasChanged = False
         for point in data.points:
+            # check if point has already been added
             found_close = False
             for keep in self.keeplist:
                 dx = abs(point.x - keep.x)
@@ -91,10 +93,12 @@ class image_projection():
                 if dist < 0.07:
                     found_close = True
 
+            # Not found on our list, append it
             if not found_close:
                 hasChanged = True
                 self.keeplist.append(point)
                 self.notsprayed.append(point)
+
         if hasChanged:
             print('Found points: {}'.format(len(self.keeplist)))
         # print(self.keeplist)
