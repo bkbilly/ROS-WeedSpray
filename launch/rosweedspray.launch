@@ -1,36 +1,14 @@
 <?xml version="1.0"?>
 
 <launch>
-  <arg name="robot_name" />
-  <arg name="x" default="0.0"/>
-  <arg name="y" default="0.0"/>
-  <arg name="tf_prefix" default="$(arg robot_name)" />
-  <arg name="robot_model" default="$(find uol_cmp9767m_base)/config/robot.yaml"/>
-  <arg name="model_extras" default="$(find uol_cmp9767m_base)/urdf/sensors.xacro"/>
-  <group ns="$(arg robot_name)">
-
-    <!-- model bringup -->
-    <include file="$(find thorvald_description)/launch/model.launch">
-      <arg name="robot_name" value="$(arg robot_name)" />
-      <arg name="tf_prefix" value="$(arg tf_prefix)" />
-      <arg name="robot_model" value="$(arg robot_model)" />
-      <arg name="model_extras" value="$(arg model_extras)" />
-    </include>
-
-    <!-- base bringup-->
-    <include file="$(find thorvald_base)/launch/base_bringup.launch">
-      <arg name="tf_prefix" value="$(arg tf_prefix)" />
-      <arg name="robot_model" value="$(arg robot_model)" />
-      <arg name="simple_sim" value="true" />
-      <arg name="enable_odom_tf" value="false" />
-      <arg name="odom_frame_id" value="$(arg tf_prefix)/odom" />
-    </include>
-
-    <!-- twist mux bringup -->
-    <include file="$(find thorvald_twist_mux)/launch/twist_mux.launch" />
-
-    <!-- spawn robot in gazebo -->
-    <node pkg="gazebo_ros" type="spawn_model" name="spawner" args="-urdf -x $(arg x) -y $(arg y) -param robot_description -model $(arg robot_name)" />
-    <node pkg="uol_cmp9767m_base" type="sprayer.py" name="sprayer" />
-  </group>
+	
+	<include file="$(find uol_cmp9767m_base)/launch/thorvald-sim.launch"/>
+	<include file="$(find uol_cmp9767m_tutorial)/launch/move_base.launch"/>
+	<node name="wall_avoidance_node" pkg="wall_avoidance_package" type="wall_avoidance_node.py"/>
+	<node name="ros_readimg" pkg="ROS-WeedSpray" type="ros_readimg.py"/>
+	<node name="ros_getpoints" pkg="ROS-WeedSpray" type="ros_getpoints.py"/>
+	<node name="ros_move" pkg="ROS-WeedSpray" type="ros_move.py"/>
+	<node type="rqt_image_view" name="rqt_image_view" pkg="rqt_image_view" />
+	<node type="rviz" name="rviz" pkg="rviz" args="-d $(find ROS-WeedSpray)/rviz/weedspray.rviz" />
+	
 </launch>
