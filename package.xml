@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>ROS-WeedSpray</name>
-  <version>0.0.0</version>
-  <description>The ROS-WeedSpray package</description>
+  <name>weedspray</name>
+  <version>0.0.1</version>
+  <description>The weedspray package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="bkbilly@todo.todo">bkbilly</maintainer>
+  <maintainer email="bkbilly@hotmail.com">bkbilly</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/ROS-WeedSpray</url> -->
+  <!-- <url type="website">http://wiki.ros.org/weedspray</url> -->
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
@@ -50,11 +50,18 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <buildtool_depend>uol_cmp9767m_base</buildtool_depend>
-  <buildtool_depend>uol_cmp9767m_tutorial</buildtool_depend>
-  <build_depend>rospy</build_depend>
-  <build_export_depend>rospy</build_export_depend>
-  <exec_depend>rospy</exec_depend>
+  <depend>uol_cmp9767m_base</depend>
+  <depend>uol_cmp9767m_tutorial</depend>
+  <depend>image_geometry</depend>
+  <depend>tf</depend>
+  <depend>cv_bridge</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>python-matplotlib</depend>
+  <depend>python-numpy</depend>
+  <depend>move_base_msgs</depend>
+  <depend>rospy</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
