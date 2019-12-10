@@ -74,7 +74,7 @@ class image_projection(CanopyClass):
         self.camera_info_sub.unregister()  # Only subscribe once
 
     def publish_points(self, contours):
-        print('Found points: {}'.format(len(contours)))
+        # print('Found points: {}'.format(len(contours)))
         time = rospy.Time(0)
         self.points_msg.points = []
         self.points_msg.header.frame_id = self.camera_model.tfFrame()
@@ -85,8 +85,9 @@ class image_projection(CanopyClass):
             x *= 0.493
             y *= 0.493
             z = 0.493
-            self.points_msg.points.append(Point32(x, y, z))
-        # print(self.points_msg.points)
+            if -0.03 <= x <= 0.03:
+                self.points_msg.points.append(Point32(x, y, z))
+        print('Found filtered points: {}'.format(len(self.points_msg.points)))
 
         tf_points = self.tflistener.transformPointCloud('map', self.points_msg)
         # print(tf_points)
@@ -121,7 +122,7 @@ class image_projection(CanopyClass):
 def main(args):
     '''Initializes and cleanup ros node'''
     rospy.init_node('image_projection', anonymous=True)
-    image_projection('thorvald_001')
+    image_projection('thorvald_001', 'realhard_inv')
 
     try:
         rospy.spin()
