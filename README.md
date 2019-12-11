@@ -1,5 +1,5 @@
 # ROS Assignment
-The objective of the project is to have a simulated robot called Throvald to run across the field of crops and find the bad weeds so that it can spray them. With image processing extracts the middle point of the recognized weed and all of the points are published as a pointCloud. Another node gets these points and desides if it needs to spray and publishes all the collected points so that it will be visualized on Rviz.
+The objective of the project is to have a simulated robot called Throvald to run across the field of crops and find the bad weeds so that it can spray them. With image processing extracts the middle point of the recognized weed and all of the points are published as a pointCloud. Another node gets these points and desides if it needs to spray and publishes all the collected points so that it will be visualized on Rviz. The final result can be seen ![here](images/preview).
 
 ## Image Processing
 In order to collect the bad weeds from the images the background had to be removed and then find the weeds. The implementation works with color matching through HSV images, though I also tried with [convolutional neural network (CNN)](mask_rcnn/README.md).
