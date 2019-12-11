@@ -7,13 +7,11 @@ import math
 # Ros libraries
 import rospy
 import tf
-import rosservice
+from std_srvs.srv import Empty
 
 # Ros Messages
 from sensor_msgs.msg import PointCloud
 from nav_msgs.msg import Odometry
-
-from subprocess import Popen
 
 
 class image_projection():
@@ -22,6 +20,9 @@ class image_projection():
         self.robot = robot
         self.keeplist = []
         self.notsprayed = []
+        self.spr = rospy.ServiceProxy(
+            "{}/spray".format(self.robot),
+            Empty)
 
         rospy.Subscriber(
             "/weed/points/{}".format(self.robot),
@@ -72,12 +73,7 @@ class image_projection():
         if shouldSpray:
             self.notsprayed = newkeep
             print('spray!!!')
-            # rosservice.call_service('/thorvald_001/spray', [])
-            # Popen('rosservice call /thorvald_001/spray',
-            #       shell=True,
-            #       stdin=None,
-            #       stdout=None,
-            #       stderr=None)
+            self.spr()
 
         self.publish_allpoints()
 

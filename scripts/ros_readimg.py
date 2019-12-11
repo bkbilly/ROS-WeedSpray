@@ -85,7 +85,7 @@ class image_projection(CanopyClass):
             x *= 0.493
             y *= 0.493
             z = 0.493
-            if -0.03 <= x <= 0.03:
+            if -0.01 <= x <= 0.01:
                 self.points_msg.points.append(Point32(x, y, z))
         print('Found filtered points: {}'.format(len(self.points_msg.points)))
 
