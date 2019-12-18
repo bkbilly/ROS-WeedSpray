@@ -71,13 +71,13 @@ On this paper \cite{weed_control2} it focuses on the weeds for tomatoes using al
 
 On this paper \cite{weed_control3} is using support vector machines for automatically spraying. It compares different image processing techniques and they used images that were 60x60 with a total of 1200 images. They also did a classification and found out that using the SWLDA (step-wise  linear  discriminant  analysis) technique the accuracy was 98.1\% which was much better than other studies.
 
-On this paper \cite{weed_control4} it is identifying the type of weeds which helps determine the type of chemical product to use. Also finds the growth stage and the location in the field. It uses a colour matching method on the leafs to determine what the weed and after that they segmentate them. 
+On this paper \cite{weed_control4} it is using a camera to identify the type of weeds which helps determine the type of chemical product to use. Also finds the growth stage and the location in the field. It uses a colour matching method on the leafs to determine what the weed and after that they segmentate them. The final accuracy of the image weed detection was 84\% though manual adjustments had to be done.
 
-On this paper \cite{weed_control5} it is using colour matching in different light conditions. This is done by identifying the rows of crop and based on the colours of this, it can identify the weed. it concludes that this technique is more accurate than BP and SVM algorithms.
+On this paper \cite{weed_control5} it is using a camera for colour matching in different light conditions. This is done by identifying the rows of crop and based on the colours of this, it can identify the weed. it concludes that this technique is more accurate than BP and SVM algorithms with accuracy of 92.5\%.
 
 On this paper \cite{weed_control5} it focuses on multi-spectal reflectance gathering. This is done by sending a light ray into an area and then get the reflection into a monochrome camera. The problem with this technique is that it is very slow because of the camera frame rate.
 
-
+\newpage
 % ----------------
 \section{Implementation}
 Obtaining all the weeds is really difficult because there are many types of weeds and the weather conditions might change from area to area. The colour matching approach is working fine on the provided dataset with predefined colours, but in the real world the result will not be as we want it. 
@@ -143,17 +143,17 @@ One problem emerged which had to do with the transformation of points to real wo
 Mask RCNN \url{https://github.com/matterport/MaskRCNN}
 
 \bibitem{weed_control1}
-Forest Research, “Weed Control,” The Land Regeneration and Urban Greenspace Research Group., 2014.
+Forest Research, "Weed Control," The Land Regeneration and Urban Greenspace Research Group., 2014.
 \bibitem{weed_control2}
-W. S. Lee, D. C. Slaughter, and D. K. Giles, “Robotic Weed Control System for Tomatoes,” Precis. Agric., 1999.
+W. S. Lee, D. C. Slaughter, and D. K. Giles, "Robotic Weed Control System for Tomatoes," Precis. Agric., 1999.
 \bibitem{weed_control3}
-M. H. Siddiqi, S. W. Lee, and A. M. Khan, “Weed image classification using wavelet transform, stepwise linear discriminant analysis, and support vector machines for an automatic spray control system,” J. Inf. Sci. Eng., 2014.
+M. H. Siddiqi, S. W. Lee, and A. M. Khan, "Weed image classification using wavelet transform, stepwise linear discriminant analysis, and support vector machines for an automatic spray control system," J. Inf. Sci. Eng., 2014.
 \bibitem{weed_control4}
-A. G. Manh, G. Rabatel, L. Assemat, and M. J. Aldon, “Weed leaf image segmentation by deformable templates,” J. Agric. Eng. Res., 2001.
+A. G. Manh, G. Rabatel, L. Assemat, and M. J. Aldon, "Weed leaf image segmentation by deformable templates," J. Agric. Eng. Res., 2001.
 \bibitem{weed_control5}
-J. L. Tang, X. Q. Chen, R. H. Miao, and D. Wang, “Weed detection using image processing under different illumination for site-specific areas spraying,” Comput. Electron. Agric., 2016.
+J. L. Tang, X. Q. Chen, R. H. Miao, and D. Wang, "Weed detection using image processing under different illumination for site-specific areas spraying," Comput. Electron. Agric., 2016.
 \bibitem{weed_control6}
-F. Feyaerts and L. Van Gool, “Multi-spectral vision system for weed detection,” Pattern Recognit. Lett., 2001.
+F. Feyaerts and L. Van Gool, "Multi-spectral vision system for weed detection," Pattern Recognit. Lett., 2001.
 \end{thebibliography}
 % ----------------
 
