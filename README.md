@@ -14,6 +14,11 @@ sudo apt install ros-kinetic-uol-cmp3103m ros-kinetic-uol-cmp9767m-base ros-kine
 ## How to run
 To run the program there are some requirements. First of all the gazebo simulation must be running with the move_base. It can run everything with these commands:
 ```bash
+mkdir -p catkin_ws/src
+cd catkin_ws
+git clone https://github.com/bkbilly/weedspray.git src/weedspray
+catkin_make
+source devel/setup.bash
 rosdep install --from-paths . -i -y
 roslaunch weedspray rosweedspray.launch
 ```
