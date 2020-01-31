@@ -18,37 +18,58 @@ class image_projection():
 
     def __init__(self, robot):
         self.robot = robot
-        self.keeplist = []
+        self.weedkeeplist = []
+        self.plantkeeplist = []
         self.notsprayed = []
         self.spr = rospy.ServiceProxy(
             "{}/spray".format(self.robot),
             Empty)
 
         rospy.Subscriber(
+            "/plant/points/{}".format(self.robot),
+            PointCloud,
+            self.plantpoints_callback)
+
+        rospy.Subscriber(
             "/weed/points/{}".format(self.robot),
             PointCloud,
-            self.points_callback)
+            self.weedpoints_callback)
 
         rospy.Subscriber(
             "/{}/odometry/base_raw".format(self.robot),
             Odometry,
             self.odometry_callback)
 
-        self.points_pub = rospy.Publisher(
+        self.weedpoints_pub = rospy.Publisher(
             "/weed/allpoints/{}".format(self.robot),
             PointCloud,
             queue_size=5)
-        self.points_msg = PointCloud()
+
+        self.plantpoints_pub = rospy.Publisher(
+            "/plant/allpoints/{}".format(self.robot),
+            PointCloud,
+            queue_size=5)
+
+        self.weedpoints_msg = PointCloud()
+        self.plantpoints_msg = PointCloud()
 
         self.tflistener = tf.listener.TransformListener()
 
-    def publish_allpoints(self):
+    def publish_allweedpoints(self):
         time = rospy.Time(0)
-        self.points_msg.points = self.keeplist
-        self.points_msg.header.frame_id = 'map'
-        self.points_msg.header.stamp = time
+        self.weedpoints_msg.points = self.weedkeeplist
+        self.weedpoints_msg.header.frame_id = 'map'
+        self.weedpoints_msg.header.stamp = time
 
-        self.points_pub.publish(self.points_msg)
+        self.weedpoints_pub.publish(self.weedpoints_msg)
+
+    def publish_allplantpoints(self):
+        time = rospy.Time(0)
+        self.plantpoints_msg.points = self.plantkeeplist
+        self.plantpoints_msg.header.frame_id = 'map'
+        self.plantpoints_msg.header.stamp = time
+
+        self.plantpoints_pub.publish(self.plantpoints_msg)
 
     def odometry_callback(self, data):
         try:
@@ -73,16 +94,17 @@ class image_projection():
         if shouldSpray:
             self.notsprayed = newkeep
             print('spray!!!')
-            self.spr()
+            # self.spr()
 
-        self.publish_allpoints()
+        self.publish_allweedpoints()
+        self.publish_allplantpoints()
 
-    def points_callback(self, data):
+    def weedpoints_callback(self, data):
         hasChanged = False
         for point in data.points:
             # check if point has already been added
             found_close = False
-            for keep in self.keeplist:
+            for keep in self.weedkeeplist:
                 dx = abs(point.x - keep.x)
                 dy = abs(point.y - keep.y)
                 dist = math.hypot(dx, dy)
@@ -92,12 +114,34 @@ class image_projection():
             # Not found on our list, append it
             if not found_close:
                 hasChanged = True
-                self.keeplist.append(point)
+                self.weedkeeplist.append(point)
                 self.notsprayed.append(point)
 
         if hasChanged:
-            print('Found points: {}'.format(len(self.keeplist)))
-        # print(self.keeplist)
+            print('Weeds Found points: {}'.format(len(self.weedkeeplist)))
+        # print(self.weedkeeplist)
+
+    def plantpoints_callback(self, data):
+        hasChanged = False
+        for point in data.points:
+            # check if point has already been added
+            found_close = False
+            for keep in self.plantkeeplist:
+                dx = abs(point.x - keep.x)
+                dy = abs(point.y - keep.y)
+                dist = math.hypot(dx, dy)
+                if dist < 0.07:
+                    found_close = True
+
+            # Not found on our list, append it
+            if not found_close:
+                hasChanged = True
+                self.plantkeeplist.append(point)
+                # self.notsprayed.append(point)
+
+        if hasChanged:
+            print('Plants Found points: {}'.format(len(self.plantkeeplist)))
+        # print(self.plantkeeplist)
 
 
 def main(args):

@@ -41,8 +41,13 @@ class image_projection(CanopyClass):
             PointStamped,
             queue_size=5)
 
-        self.contours_pub = rospy.Publisher(
+        self.weedpoints_pub = rospy.Publisher(
             "/weed/points/{}".format(self.robot),
+            PointCloud,
+            queue_size=5)
+
+        self.plantpoints_pub = rospy.Publisher(
+            "/plant/points/{}".format(self.robot),
             PointCloud,
             queue_size=5)
 
@@ -74,7 +79,7 @@ class image_projection(CanopyClass):
             print('Changed detection row to: {}'.format(data))
             self.inputimage = data.data
 
-    def publish_points(self, contours):
+    def publish_points(self, contours, publish):
         ''' Publish the points to the default topic '''
         # print('Found points: {}'.format(len(contours)))
         # time = rospy.Time(0)
@@ -94,7 +99,7 @@ class image_projection(CanopyClass):
         tf_points = self.transformPosition(self.points_msg)
         # tf_points = self.transformPositionBefore(self.points_msg)
         # print(tf_points)
-        self.contours_pub.publish(tf_points)
+        publish(tf_points)
 
     def transformPosition(self, points_msg):
         ''' Transform using the tf library.
@@ -153,13 +158,17 @@ class image_projection(CanopyClass):
         except CvBridgeError as e:
             print(e)
 
-        # ground, ground_mask = self.filter_colors(cv_image, 'ground')
         ground_inv, ground_inv_mask = self.filter_colors(cv_image, 'ground_inv')
-        plant, plant_mask = self.filter_colors(ground_inv, self.inputimage)
-        contours_image, contours, contours_boxes, contours_points = self.get_contours(plant, cv_image)
-        self.publish_points(contours_points)
 
-        contours_s = cv2.resize(contours_image, (0, 0), fx=0.5, fy=0.5)
+        weed, weed_mask = self.filter_colors(ground_inv, self.inputimage)
+        cv_image, contours, contours_boxes, contours_points = self.get_contours(weed, cv_image)
+        self.publish_points(contours_points, self.weedpoints_pub.publish)
+
+        plant, plant_mask = self.filter_colors(ground_inv, self.inputimage.replace('_inv', ''))
+        cv_image, contours, contours_boxes, contours_points = self.get_contours(plant, cv_image)
+        self.publish_points(contours_points, self.plantpoints_pub.publish)
+
+        contours_s = cv2.resize(cv_image, (0, 0), fx=0.5, fy=0.5)
 
         # Publish new image
         self.image_pub.publish(
