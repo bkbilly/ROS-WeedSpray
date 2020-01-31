@@ -4,7 +4,6 @@
 	
 	<include file="$(find uol_cmp9767m_base)/launch/thorvald-sim.launch"/>
 	<include file="$(find uol_cmp9767m_tutorial)/launch/move_base.launch"/>
-	<node name="wall_avoidance_node" pkg="wall_avoidance_package" type="wall_avoidance_node.py"/>
 	<node name="ros_readimg" pkg="weedspray" type="ros_readimg.py"/>
 	<node name="ros_getpoints" pkg="weedspray" type="ros_getpoints.py"/>
 	<node name="ros_move" pkg="weedspray" type="ros_move.py"/>

@@ -62,6 +62,7 @@
   <depend>python-numpy</depend>
   <depend>move_base_msgs</depend>
   <depend>rospy</depend>
+  <depend>fake_localization</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
