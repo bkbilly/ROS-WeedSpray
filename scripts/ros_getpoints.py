@@ -93,7 +93,7 @@ class image_projection():
 
         if shouldSpray:
             self.notsprayed = newkeep
-            print('spray!!!')
+            # print('spray!!!')
             # self.spr()
 
         self.publish_allweedpoints()
