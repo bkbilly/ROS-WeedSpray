@@ -12,7 +12,7 @@ sudo pip3 install -r requirements.txt
 ## Run
 ```bash
 # Train
-python3 /home/computing/bkbilly/Mask_RCNN/samples/balloon/balloon.py train --dataset=../images/plants2/ --weights=coco
+python3 balloon.py train --dataset=../images/plants2/ --weights=coco
 # Fit
 python3 balloon.py splash --weights=/path_to_h5/mask_rcnn_balloon_0030.h5 --image=../images/plants2/val/ros_plant2_2.jpg
 ```
