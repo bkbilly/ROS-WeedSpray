@@ -17,6 +17,17 @@ class CanopyClass():
 
     def filter_colors(self, cv_image, runtype):
         self.runtype = runtype
+
+        self.circle_color = (255, 0, 0)
+        self.tmpfound_rectangle_color = (0, 0, 255)
+        self.foundrectangle_color = (255, 0, 0)
+        self.contour_color = (0, 255, 0)
+        if '_inv' in self.runtype:
+            self.circle_color = (255, 255, 255)
+            self.tmpfound_rectangle_color = (0, 0, 255)
+            self.foundrectangle_color = (255, 0, 0)
+            self.contour_color = (0, 0, 255)
+
         hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
         if self.runtype == 'simple':
             # hsv = cv2.blur(hsv, (10, 10))
@@ -65,28 +76,21 @@ class CanopyClass():
         return res, mask
 
     def get_boxes(self, contours, cv_image):
-        circle_color = (255, 0, 0)
-        rectangle_color = (0, 0, 255)
-        if '_inv' in self.runtype:
-            circle_color = (255, 255, 255)
-            rectangle_color = (0, 0, 255)
-
-
         rects = []
         for cnt in contours:
             x, y, w, h = cv2.boundingRect(cnt)
             rects.append([x, y, w, h])
             rects.append([x, y, w, h])
-            cv2.rectangle(cv_image, (x, y), (x + w, y + h), rectangle_color, 2)
+            cv2.rectangle(cv_image, (x, y), (x + w, y + h), self.tmpfound_rectangle_color, 2)
 
         contours_points = []
         contours_boxes, weights = cv2.groupRectangles(rects, 1, 0.2)
         for rect in contours_boxes:
             middle = (x + w / 2, y + h / 2)
             contours_points.append(middle)
-            cv2.circle(cv_image, middle, 7, circle_color, -1)
+            cv2.circle(cv_image, middle, 7, self.circle_color, -1)
             x, y, w, h = rect
-            cv2.rectangle(cv_image, (x, y), (x + w, y + h), (255, 0, 0), 1)
+            cv2.rectangle(cv_image, (x, y), (x + w, y + h), self.foundrectangle_color, 1)
         return cv_image, contours_boxes, contours_points
 
     def get_contours(self, res, cv_image):
@@ -113,7 +117,7 @@ class CanopyClass():
             if area > threshold_area:
                 filtered_contours.append(cnt)
 
-        cv2.drawContours(contours_image, filtered_contours, -1, (0, 255, 0), 1)
+        cv2.drawContours(contours_image, filtered_contours, -1, self.contour_color, -1)
         boxes_image, contours_boxes, contours_points = self.get_boxes(
             filtered_contours,
             contours_image)
@@ -122,13 +126,14 @@ class CanopyClass():
 
 
 if __name__ == "__main__":
-    inputimage = ['images/plants3/ros_plant3_0.jpg', 'realhard_inv']
-    inputimage = ['images/plants3/ros_plant3_1.jpg', 'realhard_inv']
-    inputimage = ['images/plants1/ros_plant0.jpg', 'simple_inv']
-    inputimage = ['images/plants1/ros_plant0_1.jpg', 'simple_inv']
-    inputimage = ['images/plants1/ros_plant0_2.jpg', 'simple_inv']
-    inputimage = ['images/plants2/train/ros_plant2_0.jpg', 'realeasy_inv']
-    inputimage = ['images/plants2/train/ros_plant2_1.jpg', 'realeasy_inv']
+    inputimage = ['../images/plants2/train/ros_plant2_1.jpg', 'realeasy_inv', 'realeasy']
+    inputimage = ['../images/plants3/ros_plant3_0.jpg', 'realhard_inv', 'realhard']
+    inputimage = ['../images/plants1/ros_plant0_2.jpg', 'simple_inv', 'simple']
+    # inputimage = ['images/plants1/ros_plant0.jpg', 'simple_inv', 'simple']
+    # inputimage = ['images/plants1/ros_plant0_1.jpg', 'simple_inv', 'simple']
+    # inputimage = ['images/plants1/ros_plant0_2.jpg', 'simple_inv', 'simple']
+    # inputimage = ['images/plants2/train/ros_plant2_0.jpg', 'realeasy_inv', 'realeasy']
+    # inputimage = ['images/plants2/train/ros_plant2_1.jpg', 'realeasy_inv', 'realeasy']
     cv_image = cv2.imread(inputimage[0])
     # hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
 
@@ -136,21 +141,29 @@ if __name__ == "__main__":
     # showPlot(cv_image)
     ground, ground_mask = can.filter_colors(cv_image, 'ground')
     ground_inv, ground_inv_mask = can.filter_colors(cv_image, 'ground_inv')
+
     plant, plant_mask = can.filter_colors(ground_inv, inputimage[1])
     contours_image, contours, contours_boxes, contours_points = can.get_contours(plant, cv_image)
+    indices = np.where(plant_mask == 255)
+    cv_image[indices[0], indices[1], :] = (0, 0, 255)
+
+    plant, plant_mask = can.filter_colors(ground_inv, inputimage[2])
+    plants_image, plants, plants_boxes, plants_points = can.get_contours(plant, contours_image)
+    indices = np.where(plant_mask == 255)
+    cv_image[indices[0], indices[1], :] = (0, 255, 0)
 
     # cv2.imshow('Mask', plant)
-    plt.subplot(2, 2, 3)
-    plt.imshow(plant)
-    plt.subplot(2, 2, 2)
-    plt.imshow(ground_mask + plant_mask)
-    plt.subplot(2, 2, 1)
-    plt.imshow(cv2.resize(contours_image, (0, 0), fx=0.5, fy=0.5))
-    # plt.show()
+    plt.subplot(2, 1, 1)
+    plt.imshow(cv_image)
+    plt.subplot(2, 1, 2)
+    plt.imshow(plants_image)
+    # plt.subplot(2, 2, 1)
+    # plt.imshow(cv2.resize(contours_image, (0, 0), fx=0.5, fy=0.5))
+    plt.show()
 
     # cv2.imshow('Mask', ground_mask + plant_mask)
     # cv2.imshow('Mask_plant', mask_plant)
     # cv2.imshow('final', contours)
-    cv2.imshow('Contours', contours_image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow('Contours', cv_image)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
