@@ -16,43 +16,44 @@ class CanopyClass():
         plt.show()
 
     def filter_colors(self, cv_image, runtype):
+        self.runtype = runtype
         hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
-        if runtype == 'simple':
+        if self.runtype == 'simple':
             # hsv = cv2.blur(hsv, (10, 10))
             hsv = cv2.GaussianBlur(hsv, ksize=(17, 17), sigmaX=10)
             lower_filter = np.array([30, 120, 0])
             upper_filter = np.array([50, 180, 200])
-        if runtype == 'simple_inv':
+        if self.runtype == 'simple_inv':
             # hsv = cv2.blur(hsv, (10, 10))
             hsv = cv2.GaussianBlur(hsv, ksize=(17, 17), sigmaX=10)
             lower_filter = np.array([0, 0, 0])
             upper_filter = np.array([255, 80, 255])
-        elif runtype == 'realeasy':
+        elif self.runtype == 'realeasy':
             hsv = cv2.blur(hsv, (40, 40))
             hsv = cv2.GaussianBlur(hsv, ksize=(17, 17), sigmaX=10)
             lower_filter = np.array([0, 10, 40])
             upper_filter = np.array([60, 150, 255])
-        elif runtype == 'realeasy_inv':
+        elif self.runtype == 'realeasy_inv':
             # hsv = cv2.blur(hsv, (40, 40))
             hsv = cv2.GaussianBlur(hsv, ksize=(17, 17), sigmaX=10)
             lower_filter = np.array([30, 30, 0])
             upper_filter = np.array([100, 90, 40])
-        elif runtype == 'realhard':
+        elif self.runtype == 'realhard':
             hsv = cv2.blur(hsv, (40, 40))
             # hsv = cv2.GaussianBlur(hsv, ksize=(17,17), sigmaX=10)
             lower_filter = np.array([40, 40, 0])
             upper_filter = np.array([100, 80, 200])
-        elif runtype == 'realhard_inv':
+        elif self.runtype == 'realhard_inv':
             hsv = cv2.blur(hsv, (40, 40))
             hsv = cv2.GaussianBlur(hsv, ksize=(17, 17), sigmaX=10)
             lower_filter = np.array([0, 90, 0])
             upper_filter = np.array([255, 100, 255])
-        elif runtype == 'ground':
+        elif self.runtype == 'ground':
             # hsv = cv2.blur(hsv, (40, 40))
             hsv = cv2.GaussianBlur(hsv, ksize=(17, 17), sigmaX=10)
             lower_filter = np.array([0, 30, 30])
             upper_filter = np.array([20, 140, 80])
-        elif runtype == 'ground_inv':
+        elif self.runtype == 'ground_inv':
             # hsv = cv2.blur(hsv, (40, 40))
             hsv = cv2.GaussianBlur(hsv, ksize=(17, 17), sigmaX=10)
             lower_filter = np.array([30, 0, 10])
@@ -64,19 +65,26 @@ class CanopyClass():
         return res, mask
 
     def get_boxes(self, contours, cv_image):
+        circle_color = (255, 0, 0)
+        rectangle_color = (0, 0, 255)
+        if '_inv' in self.runtype:
+            circle_color = (255, 255, 255)
+            rectangle_color = (0, 0, 255)
+
+
         rects = []
         for cnt in contours:
             x, y, w, h = cv2.boundingRect(cnt)
             rects.append([x, y, w, h])
             rects.append([x, y, w, h])
-            cv2.rectangle(cv_image, (x, y), (x + w, y + h), (0, 0, 255), 2)
+            cv2.rectangle(cv_image, (x, y), (x + w, y + h), rectangle_color, 2)
 
         contours_points = []
         contours_boxes, weights = cv2.groupRectangles(rects, 1, 0.2)
         for rect in contours_boxes:
             middle = (x + w / 2, y + h / 2)
             contours_points.append(middle)
-            cv2.circle(cv_image, middle, 7, (255, 255, 255), -1)
+            cv2.circle(cv_image, middle, 7, circle_color, -1)
             x, y, w, h = rect
             cv2.rectangle(cv_image, (x, y), (x + w, y + h), (255, 0, 0), 1)
         return cv_image, contours_boxes, contours_points
@@ -106,7 +114,9 @@ class CanopyClass():
                 filtered_contours.append(cnt)
 
         cv2.drawContours(contours_image, filtered_contours, -1, (0, 255, 0), 1)
-        boxes_image, contours_boxes, contours_points = self.get_boxes(filtered_contours, contours_image)
+        boxes_image, contours_boxes, contours_points = self.get_boxes(
+            filtered_contours,
+            contours_image)
 
         return boxes_image, filtered_contours, contours_boxes, contours_points
 
