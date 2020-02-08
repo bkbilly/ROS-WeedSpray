@@ -1,9 +1,10 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
+import os
 
 
 class CanopyClass():
@@ -109,7 +110,7 @@ class CanopyClass():
             im2, contours, hierarchy = resultof_find
 
         # Filter contours that are larger than a threshold
-        contours_image = copy.copy(cv_image)
+        contours_image = np.copy(cv_image)
         threshold_area = 300
         filtered_contours = []
         for cnt in contours:
@@ -124,46 +125,107 @@ class CanopyClass():
 
         return boxes_image, filtered_contours, contours_boxes, contours_points
 
+    def get_mask_from_contours(self, contours, old_mask):
+        mask = np.copy(old_mask)
+        mask = np.where(mask == 255, 0, mask)
+        cv2.drawContours(mask, contours, -1, 255, -1)
+        return mask
+
+    def compare_masks(self, contours_image, manualmask_location):
+        percent = None
+        try:
+            manualmask_image = cv2.imread(manualmask_location)
+            manualmask_image = np.where(manualmask_image != 255, 0, manualmask_image)
+            manualmask_image = (255 - manualmask_image)
+            manualmask_image = np.mean(manualmask_image, axis=2)
+            manualmask_image = np.where(manualmask_image > 0, 255, manualmask_image)
+
+            compared_masks = (contours_image == manualmask_image)
+            percent = float(np.sum(compared_masks)) / float(compared_masks.size)
+
+            # import ipdb
+            # ipdb.set_trace()
+
+            # plt.subplot(2, 1, 1)
+            # plt.imshow(contours_image)
+            # plt.subplot(2, 1, 2)
+            # plt.imshow(manualmask_image)
+            # plt.show()
+        except Exception as e:
+            # print(e)
+            return None
+        return percent
 
 if __name__ == "__main__":
-    inputimage = ['../images/plants2/train/ros_plant2_1.jpg', 'realeasy_inv', 'realeasy']
-    inputimage = ['../images/plants3/ros_plant3_0.jpg', 'realhard_inv', 'realhard']
-    inputimage = ['../images/plants1/ros_plant0_2.jpg', 'simple_inv', 'simple']
-    # inputimage = ['images/plants1/ros_plant0.jpg', 'simple_inv', 'simple']
-    # inputimage = ['images/plants1/ros_plant0_1.jpg', 'simple_inv', 'simple']
-    # inputimage = ['images/plants1/ros_plant0_2.jpg', 'simple_inv', 'simple']
-    # inputimage = ['images/plants2/train/ros_plant2_0.jpg', 'realeasy_inv', 'realeasy']
-    # inputimage = ['images/plants2/train/ros_plant2_1.jpg', 'realeasy_inv', 'realeasy']
-    cv_image = cv2.imread(inputimage[0])
-    # hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
+    dataset = '/home/bkbilly/Downloads/Paper_Dataset/'
+    plants = ['Basil', 'Lettuce', 'Anions']
+    planttypes = ['simple', 'realeasy', 'realhard']
+    for num, plant_loc in enumerate(plants):
+        plant_location = '{}{}'.format(dataset, plant_loc)
+        for pngimage in os.listdir('{}/Original'.format(plant_location)):
+            inputimage = [
+                '{}/Original/{}'.format(plant_location, pngimage),
+                '{}_inv'.format(planttypes[num]),
+                planttypes[num]
+            ]
+            # inputimage = ['../images/plants2/train/ros_plant2_1.jpg', 'realeasy_inv', 'realeasy']
+            # inputimage = ['../images/plants3/ros_plant3_0.jpg', 'realhard_inv', 'realhard']
+            # inputimage = ['../images/plants1/ros_plant0_2.jpg', 'simple_inv', 'simple']
+            # inputimage = ['images/plants1/ros_plant0.jpg', 'simple_inv', 'simple']
+            # inputimage = ['images/plants1/ros_plant0_1.jpg', 'simple_inv', 'simple']
+            # inputimage = ['images/plants1/ros_plant0_2.jpg', 'simple_inv', 'simple']
+            # inputimage = ['images/plants2/train/ros_plant2_0.jpg', 'realeasy_inv', 'realeasy']
+            # inputimage = ['images/plants2/train/ros_plant2_1.jpg', 'realeasy_inv', 'realeasy']
+            cv_image = cv2.imread(inputimage[0])
+            # hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
 
-    can = CanopyClass()
-    # showPlot(cv_image)
-    ground, ground_mask = can.filter_colors(cv_image, 'ground')
-    ground_inv, ground_inv_mask = can.filter_colors(cv_image, 'ground_inv')
+            can = CanopyClass()
+            # showPlot(cv_image)
+            # ground, ground_mask = can.filter_colors(cv_image, 'ground')
+            prefilter_image = np.copy(cv_image)
 
-    plant, plant_mask = can.filter_colors(ground_inv, inputimage[1])
-    contours_image, contours, contours_boxes, contours_points = can.get_contours(plant, cv_image)
-    indices = np.where(plant_mask == 255)
-    cv_image[indices[0], indices[1], :] = (0, 0, 255)
+            # Remove Ground
+            ground_inv, ground_inv_mask = can.filter_colors(cv_image, 'ground_inv')
 
-    plant, plant_mask = can.filter_colors(ground_inv, inputimage[2])
-    plants_image, plants, plants_boxes, plants_points = can.get_contours(plant, contours_image)
-    indices = np.where(plant_mask == 255)
-    cv_image[indices[0], indices[1], :] = (0, 255, 0)
+            # Get contours of weeds
+            weed, weed_mask = can.filter_colors(ground_inv, inputimage[1])
+            contours_image, weed_contours, contours_boxes, contours_points = can.get_contours(weed, cv_image)
+            indices = np.where(weed_mask == 255)
+            weedmask_image = prefilter_image[indices[0], indices[1], :] = (0, 0, 255)
+            weed_mask_contours = can.get_mask_from_contours(weed_contours, weed_mask)
+            manualmask_location = '{}{}/Masks/Mask_Weed/{}'.format(dataset, plant_loc, pngimage)
+            weed_comparison = can.compare_masks(weed_mask_contours, manualmask_location)
 
-    # cv2.imshow('Mask', plant)
-    plt.subplot(2, 1, 1)
-    plt.imshow(cv_image)
-    plt.subplot(2, 1, 2)
-    plt.imshow(plants_image)
-    # plt.subplot(2, 2, 1)
-    # plt.imshow(cv2.resize(contours_image, (0, 0), fx=0.5, fy=0.5))
-    plt.show()
+            # Get contours of plants
+            plant, plant_mask = can.filter_colors(ground_inv, inputimage[2])
+            plants_image, plant_contours, plants_boxes, plants_points = can.get_contours(plant, contours_image)
+            indices = np.where(plant_mask == 255)
+            prefilter_image[indices[0], indices[1], :] = (0, 255, 0)
+            plant_mask_contours = can.get_mask_from_contours(plant_contours, plant_mask)
+            manualmask_location = '{}{}/Masks/Mask_Crop/{}'.format(dataset, plant_loc, pngimage)
+            plant_comparison = can.compare_masks(plant_mask_contours, manualmask_location)
 
-    # cv2.imshow('Mask', ground_mask + plant_mask)
-    # cv2.imshow('Mask_plant', mask_plant)
-    # cv2.imshow('final', contours)
-    # cv2.imshow('Contours', cv_image)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+            # Save the images (1 time thing)
+            # save_location1 = '{}{}/ColourBased/{}'.format(dataset, plant_loc, pngimage)
+            # save_location2 = '{}{}/ColourBased/filtered_{}'.format(dataset, plant_loc, pngimage)
+            # print(save_location1)
+            # print(save_location2)
+            # cv2.imwrite(save_location1, prefilter_image)
+            # cv2.imwrite(save_location2, plants_image)
+
+            print('{} ({}): {}, {}'.format(plant_loc, pngimage, weed_comparison, plant_comparison))
+            plt.subplot(2, 1, 1)
+            plt.imshow(cv_image)
+            plt.subplot(2, 1, 2)
+            plt.imshow(plants_image)
+            # plt.imshow(plant_mask_contours)
+            # plt.imshow(cv2.resize(contours_image, (0, 0), fx=0.5, fy=0.5))
+            plt.show()
+
+            # cv2.imshow('Mask', ground_mask + plant_mask)
+            # cv2.imshow('Mask_plant', mask_plant)
+            # cv2.imshow('final', contours)
+            # cv2.imshow('Contours', cv_image)
+            # cv2.imshow('Contours', plant_mask_contours)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
